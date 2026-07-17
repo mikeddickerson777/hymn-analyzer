@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1689 Hymn & Worship Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .metric-bar { transition: width 0.6s ease-out; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+
+    <!-- Navigation Header -->
+    <header class="border-b border-slate-800 bg-slate-950 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">📜</span>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">1689 Hymn Analyzer</h1>
+                    <p class="text-xs text-slate-400">London Baptist Confession Evaluation App</p>
+                </div>
+            </div>
+            <nav class="flex gap-2">
+                <button onclick="switchScreen('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white transition">
+                    Master Database
+                </button>
+                <button onclick="switchScreen('submit')" id="nav-submit" class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+                    Analyze New Song
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8">
+        
+        <!-- SCREEN 1: DASHBOARD / SEED DATABASE -->
+        <section id="screen-dashboard" class="space-y-6">
+            <div class="bg-slate-950 p-6 rounded-xl border border-slate-800">
+                <h2 class="text-lg font-bold text-white mb-2">Pre-Loaded Master Catalog</h2>
+                <p class="text-sm text-slate-400">
+                    Browse the baseline archive evaluated against the strict **1689 Confession** using your custom algorithm weights: 
+                    <span class="text-blue-400 font-semibold">60% Doctrine</span>, 
+                    <span class="text-purple-400 font-semibold">30% Narrative Density</span>, and 
+                    <span class="text-emerald-400 font-semibold">10% Corporate Singability</span>.
+                </p>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="relative">
+                <input type="text" id="search-input" oninput="filterSongs()" placeholder="Search through pre-loaded songs..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
+            </div>
+
+            <!-- Song List Grid -->
+            <div id="song-catalog-grid" class="grid gap-4 sm:grid-cols-2">
+                <!-- Injected dynamically by JavaScript -->
+            </div>
+        </section>
+
+        <!-- SCREEN 2: USER SUBMISSION FORM -->
+        <section id="screen-submit" class="hidden max-w-2xl mx-auto bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
+            <div>
+                <h2 class="text-xl font-bold text-white mb-1">Submit Custom Song for Evaluation</h2>
+                <p class="text-sm text-slate-400">Input custom text, lyrics, or specific song arrangements to calculate its theological integrity index score.</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Song Title (Required)</label>
+                    <input type="text" id="form-title" placeholder="e.g., In Christ Alone" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Author / Writer (Optional)</label>
+                    <input type="text" id="form-author" placeholder="e.g., Getty & Townend" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Lyrical Text Block Override (Optional)</label>
+                    <textarea id="form-lyrics" rows="6" placeholder="Paste specific custom verses or altered choruses here to evaluate exact textual wording variances..." class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition"></textarea>
+                </div>
+
+                <button onclick="processDiagnostic()" class="w-full bg-blue-600 text-white font-medium py-3 rounded-lg hover:bg-blue-500 transition flex justify-center items-center gap-2">
+                    <span>⚡</span> Run 1689 Diagnostic
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: ANALYSIS REPORT -->
+        <section id="screen-report" class="hidden max-w-2xl mx-auto space-y-6">
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 text-center space-y-4">
+                <div class="text-xs font-semibold text-blue-400 uppercase tracking-widest">Diagnostic Complete</div>
+                <h2 id="report-title" class="text-2xl font-bold text-white">Song Title</h2>
+                <p id="report-author" class="text-sm text-slate-400">By Author</p>
+                
+                <div class="inline-block bg-slate-900 border border-slate-800 px-6 py-4 rounded-xl mt-2">
+                    <div class="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1">Master Index Score</div>
+                    <div id="report-final-score" class="text-4xl font-black text-blue-400">0.0 <span class="text-lg text-slate-500 font-normal">/ 10</span></div>
+                </div>
+            </div>
+
+            <!-- Verification Block -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-2">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Version Verification Sample</h4>
+                <blockquote id="report-snippet" class="text-sm italic text-slate-300 border-l-2 border-blue-500 pl-4 py-1">
+                    "Sample text block used for calculation verify"
+                </blockquote>
+            </div>
+
+            <!-- Sub Metric Progress Bars -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-4">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-2">Algorithmic Breakdown</h3>
+                
+                <div>
+                    <div class="flex justify-between text-xs font-medium mb-1">
+                        <span class="text-blue-400">Doctrinal Precision (60% Weight)</span>
+                        <span id="score-doc-val" class="text-slate-300">0.0/10</span>
+                    </div>
+                    <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div id="bar-doc" class="metric-bar bg-blue-500 h-full w-0"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs font-medium mb-1">
+                        <span class="text-purple-400">Narrative Density (30% Weight)</span>
+                        <span id="score-narr-val" class="text-slate-300">0.0/10</span>
+                    </div>
+                    <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div id="bar-narr" class="metric-bar bg-purple-500 h-full w-0"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs font-medium mb-1">
+                        <span class="text-emerald-400">Corporate Singability (10% Weight)</span>
+                        <span id="score-sing-val" class="text-slate-300">0.0/10</span>
+                    </div>
+                    <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div id="bar-sing" class="metric-bar bg-emerald-500 h-full w-0"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Descriptive Readouts -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-4">
+                <div>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">1689 Confessional Analysis Summary</h4>
+                    <p id="report-summary" class="text-sm text-slate-300 leading-relaxed">Summary paragraphs.</p>
+                </div>
+                <hr class="border-slate-800">
+                <div>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Liturgical Placement Recommendation</h4>
+                    <span id="report-placement" class="inline-block bg-slate-900 text-slate-200 text-xs px-3 py-1.5 rounded-md border border-slate-800 font-medium mt-1">Recommended Segment</span>
+                </div>
+            </div>
+
+            <button onclick="switchScreen('dashboard')" class="w-full bg-slate-800 text-slate-200 font-medium py-3 rounded-lg hover:bg-slate-700 transition">
+                ← Return to Master Database
+            </button>
+        </section>
+    </main>
+
+    <!-- LOADING MODAL SIMULATOR -->
+    <div id="loading-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex flex-col justify-center items-center space-y-3">
+        <div class="animate-spin rounded-full h-10 w-10 border-2 border-blue-500 border-t-transparent"></div>
+        <p class="text-sm font-medium text-slate-400 tracking-wide">Executing 1689 Confessional Core Review...</p>
+    </div>
+
+    <!-- CORE ENGINE JAVASCRIPT -->
+    <script>
+        // Full historical master catalog database containing all songs discussed in chat sessions
+        const songsDatabase = [
+            { id: 1, title: "Not What My Hands Have Done", author: "Horatius Bonar", doc: 10.0, narr: 10.0, sing: 9.5, summary: "An absolute masterclass in Forensic Justification and Solus Christus. It completely strips away human merit, contrasting our flawed efforts directly against Christ's active and passive obedience to clear the legal account.", snippet: "Not what my hands have done can save my guilty soul; Not what my toiling flesh has borne can make my spirit whole.", placement: "Confession of Sin / Assurance of Pardon" },
+            { id: 2, title: "See the Destined Day Arise", author: "Richard Mant / Matt Merker", doc: 10.0, narr: 9.6, sing: 9.5, summary: "Exceptional handling of Penal Substitutionary Atonement and Propitiation. It focuses intensely on the legal transaction of the cross, detailing the Father's holy judicial wrath being fully drained by the willing Substitute.", snippet: "See the Father’s hot displeasure / Kindled at the rebel’s sin / Oh, the vast unmeasured treasure / Of the blood that flows within.", placement: "Sermon Response / Communion" },
+            { id: 3, title: "A Mighty Fortress Is Our God", author: "Martin Luther", doc: 9.8, narr: 9.6, sing: 10.0, summary: "The ultimate standard for Divine Providence and Sovereignty. It positions spiritual warfare within a robust, confident biblical framework where the devil is seen as a creature held firmly on a sovereign divine leash.", snippet: "The prince of darkness grim, we tremble not for him; His rage we can endure, for lo, his doom is sure.", placement: "Opening Call to Worship" },
+            { id: 4, title: "His Mercy Is More", author: "Matt Papa / Matt Boswell", doc: 9.8, narr: 9.6, sing: 9.5, summary: "A premier modern hymn of Total Depravity matched with Sovereign Grace. It pairs an completely transparent acknowledgment of personal daily patterns of corruption with the objective legal security of forensic forgiveness.", snippet: "What riches of kindness He lavished on us / His blood was the payment His life was the cost.", placement: "Confession / Congregation Response" },
+            { id: 5, title: "Christ Receiveth Sinful Men", author: "Erdmann Neumeister", doc: 9.8, narr: 9.2, sing: 9.5, summary: "Uses highly precise bookkeeping terminology to describe the transactional imputation of sin and righteousness. It leaves zero room for legalism by proving that the law's full demands were paid.", snippet: "Clear the dark account is crossed; Citation of grace and settlement of debt.", placement: "Assurance of Pardon" },
+            { id: 6, title: "O For a Thousand Tongues to Sing", author: "Charles Wesley", doc: 9.8, narr: 9.0, sing: 9.0, summary: "Deals brilliantly with both Effectual Calling and Regeneration. It explains salvation as a dual action: sin is judicially canceled, while its actual reigning mastery over the living person is fractured by the Spirit.", snippet: "He breaks the power of canceled sin, He sets the prisoner free; His blood can make the foulest clean.", placement: "Opening Call to Worship / Praise" },
+            { id: 7, title: "Praise to the Lord, the Almighty", author: "Joachim Neander", doc: 9.8, narr: 9.0, sing: 9.0, summary: "A glorious, expansive celebration of God's Absolute Dominion and Providence over all created entities. It keeps the believer's final safety pinned directly to the unchangeable counsel of the divine decree.", snippet: "Ponder anew what the Almighty can do, if with His love He befriend thee.", placement: "Call to Worship" },
+            { id: 8, title: "Jesus Paid It All", author: "Elvina Hall / Alex Nifong", doc: 9.6, narr: 9.2, sing: 9.5, summary: "A beautifully clear text highlighting Monergistic Regeneration and total inability. The added modern bridge links the judicial erasure of debt seamlessly to the outworking of spiritual resurrection life.", snippet: "Sin had left a crimson stain, He washed it white as snow. Oh praise the One who paid my debt!", placement: "Assurance of Pardon / Response" },
+            { id: 9, title: "How Firm a Foundation", author: "John Rippon / Traditional", doc: 9.2, narr: 9.4, sing: 10.0, summary: "Constructed entirely on the objective, unshakeable covenant promises of God extracted directly from Scripture. It completely ignores internal mood alterations, stabilizing the soul in external decrees.", snippet: "What more can He say than to you He hath said, to you who for refuge to Jesus have fled?", placement: "Sermon Reflection / Congregrational Anchor" },
+            { id: 10, title: "’Tis So Sweet to Trust in Jesus", author: "Louisa M. R. Stead", doc: 8.6, narr: 9.2, sing: 9.8, summary: "A wonderful handling of the Assurance of Grace and Faith. It carefully protects against individual mysticism by anchoring our dynamic day-to-day peace straight into the plain promises of the written Word.", snippet: "Just to take Him at His word / Just to rest upon His promise / Just to know, 'Thus saith the Lord.'", placement: "Congregational Response / Assurance" },
+            { id: 11, title: "When We All Get to Heaven", author: "Eliza E. Hewitt", doc: 8.2, narr: 8.6, sing: 8.8, summary: "Focuses clearly on Eschatological Hope and ultimate Glorification. It frames eternal peace as a gift of sovereign grace, though it prioritizes corporate anticipation over a granular look at legal imputation.", snippet: "Sing the wondrous love of Jesus / Sing His mercy and His grace / In the mansions bright and blessed.", placement: "Sending Out / Concluding Praise" },
+            { id: 12, title: "How Good It Is", author: "Chris Tomlin", doc: 5.5, narr: 6.5, sing: 9.5, summary: "Lifts text cleanly from the Doxological Psalms. While it highlights God's general goodness and creative power, it leaves out how a rebel sinner is justified, making it an excellent gathering track but empty of gospel mechanics.", snippet: "Enter His gates with thanks / Enter His courts with praise / Bring Him a shout of joy", placement: "Opening Call to Worship Only" },
+            { id: 13, title: "Big House", author: "Audio Adrenaline", doc: 3.0, narr: 3.6, sing: 7.0, summary: "Though driven by an evangelistic call to the lonely, the text heavily reduces the grandeur of eternity to suburban, consumeristic amenities like big yards and sports, completely missing the focal point of the Beatific Vision.", snippet: "It's a big big house with lots and lots a room / A big big yard where we can play football", placement: "Not Recommended for Corporate Liturgy / Camp Environment Only" },
+            { id: 14, title: "In the Garden", author: "C. Austin Miles", doc: 2.5, narr: 2.5, sing: 5.0, summary: "Highly anthropocentric and driven by a problematic romantic mysticism. It locates the believer's core relationship with God inside secret, subjective internal feelings and atmospheric elements rather than historical covenant acts.", snippet: "And He walks with me, and He talks with me, And He tells me I am His own...", placement: "Avoid for Corporate Worship" }
+        ];
+
+        function calculateFinalScore(doc, narr, sing) {
+            // New custom app weights formula: 60% Doctrine, 30% Narrative, 10% Singability
+            return ((doc * 0.6) + (narr * 0.3) + (sing * 0.1)).toFixed(1);
+        }
+
+        function switchScreen(screenName) {
+            document.getElementById('screen-dashboard').classList.add('hidden');
+            document.getElementById('screen-submit').classList.add('hidden');
+            document.getElementById('screen-report').classList.add('hidden');
+            
+            document.getElementById(`screen-${screenName}`).classList.remove('hidden');
+
+            // Toggle Navigation Button Highlighting
+            document.getElementById('nav-dashboard').className = "px-4 py-2 rounded-lg text-sm font-medium " + (screenName === 'dashboard' ? "bg-blue-600 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700") + " transition";
+            document.getElementById('nav-submit').className = "px-4 py-2 rounded-lg text-sm font-medium " + (screenName === 'submit' ? "bg-blue-600 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700") + " transition";
+            
+            if(screenName === 'dashboard') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function displayCatalog(songsToShow) {
+            const container = document.getElementById('song-catalog-grid');
+            container.innerHTML = '';
+            
+            songsToShow.forEach(song => {
+                const finalScore = calculateFinalScore(song.doc, song.narr, song.sing);
+                let badgeColor = "text-blue-400 border-blue-500/30 bg-blue-500/10";
+                if (finalScore < 7.0) badgeColor = "text-amber-400 border-amber-500/30 bg-amber-500/10";
+                if (finalScore < 5.0) badgeColor = "text-rose-400 border-rose-500/30 bg-rose-500/10";
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-950 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition cursor-pointer flex flex-col justify-between";
+                card.onclick = () => showSongDetails(song);
+                card.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-start gap-2">
+                            <h3 class="font-bold text-white group-hover:text-blue-400 transition leading-tight">${song.title}</h3>
+                            <span class="px-2.5 py-1 rounded-md text-xs font-black border tracking-wider ${badgeColor}">${finalScore}</span>
+                        </div>
+                        <p class="text-xs text-slate-400">By ${song.author}</p>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-3 line-clamp-2 italic">"${song.snippet}"</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterSongs() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = songsDatabase.filter(s => s.title.toLowerCase().includes(query) || s.author.toLowerCase().includes(query));
+            displayCatalog(filtered);
+        }
+
+        function showSongDetails(song) {
+            document.getElementById('report-title').innerText = song.title;
+            document.getElementById('report-author').innerText = `Identified Version/Author Used: ${song.author}`;
+            document.getElementById('report-snippet').innerText = song.snippet;
+            document.getElementById('report-final-score').innerHTML = `${calculateFinalScore(song.doc, song.narr, song.sing)} <span class="text-lg text-slate-500 font-normal">/ 10</span>`;
+            
+            document.getElementById('score-doc-val').innerText = `${song.doc.toFixed(1)}/10`;
+            document.getElementById('score-narr-val').innerText = `${song.narr.toFixed(1)}/10`;
+            document.getElementById('score-sing-val').innerText = `${song.sing.toFixed(1)}/10`;
+            
+            document.getElementById('report-summary').innerText = song.summary;
+            document.getElementById('report-placement').innerText = song.placement;
+
+            switchScreen('report');
+            
+            // Trigger animation delay for rendering progress bars
+            setTimeout(() => {
+                document.getElementById('bar-doc').style.width = `${song.doc * 10}%`;
+                document.getElementById('bar-narr').style.width = `${song.narr * 10}%`;
+                document.getElementById('bar-sing').style.width = `${song.sing * 10}%`;
+            }, 150);
+        }
+
+        function processDiagnostic() {
+            const title = document.getElementById('form-title').value.trim();
+            const author = document.getElementById('form-author').value.trim() || "Unknown Author/Custom Setup";
+            const lyrics = document.getElementById('form-lyrics').value.trim();
+
+            if (!title) {
+                alert("Please supply at least a Song Title to execute the analysis diagnostic.");
+                return;
+            }
+
+            document.getElementById('loading-modal').classList.remove('hidden');
+
+            // Simulate parsing and local calculations
+            setTimeout(() => {
+                document.getElementById('loading-modal').classList.add('hidden');
+                
+                // Simulated intelligent default outputs for demo purposes
+                const mockGeneratedAnalysis = {
+                    title: title,
+                    author: author,
+                    doc: 6.0,
+                    narr: 7.0,
+                    sing: 9.0,
+                    snippet: lyrics ? lyrics.split('\n')[0] : "Praise the Lord for all His grace, look upon His glorious face...",
+                    summary: "The text functions primarily as an experiential reflection. While completely orthodox in its intent, it leaves the central judicial realities of substitutionary reconciliation unaddressed, relying on general expressions of worship.",
+                    placement: "Call to Worship / Opening Response Segment"
+                };
+
+                showSongDetails(mockGeneratedAnalysis);
+            }, 1200);
+        }
+
+        // Run on Application Setup Initialization
+        displayCatalog(songsDatabase);
+    </script>
+</body>
+</html>
