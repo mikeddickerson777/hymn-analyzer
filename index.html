@@ -39,10 +39,10 @@
             <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 flex flex-col md:flex-row md:items-start justify-between gap-6">
                 <div class="space-y-4">
                     <p class="text-sm text-slate-300 max-w-3xl leading-relaxed">
-                        This was created as a free resource to support Pastors and Worship Pastors as they assess possible songs for worship. The analysis is done by Gemini AI (3.5 Flash) and compares the songs to the 1689 2nd London Baptist Confession for doctrinal accuracy. It uses a weighted scale for scoring: <span class="text-blue-400 font-semibold">70% Doctrine</span>, <span class="text-purple-400 font-semibold">20% Narrative Density</span>, and <span class="text-emerald-400 font-semibold">10% Corporate Singability</span>.
+                        This was created as a free resource to support Pastors and worship pastors as they assess possible songs for worship. The analysis is done by Gemini AI (3.5 Flash) and compares the songs to the 1689 2nd London Baptist Confession for doctrinal accuracy. It uses this scale for scoring: Weights: <span class="text-blue-400 font-semibold">70% Doctrine</span>, <span class="text-purple-400 font-semibold">20% Narrative Density</span>, and <span class="text-emerald-400 font-semibold">10% Corporate Singability</span>.
                     </p>
                     <p class="text-sm text-slate-400 italic">
-                        If you encounter any issues or have questions, please contact me at <a href="mailto:mikeddickerson@gmail.com" class="text-blue-400 hover:text-blue-300 underline transition">mikeddickerson@gmail.com</a>.
+                        If you encounter any issues or have questions, please contact me at <a href="mailto:YOUR_EMAIL@HERE.com" class="text-blue-400 hover:text-blue-300 underline transition">YOUR_EMAIL@HERE.com</a>.
                     </p>
                     <div class="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg flex items-center gap-2">
                         <span>⚠️</span>
@@ -114,14 +114,6 @@
                 </div>
             </div>
 
-            <!-- Verification Block -->
-            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-2">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Version Verification Sample Line</h4>
-                <blockquote id="report-snippet" class="text-sm italic text-slate-300 border-l-2 border-blue-500 pl-4 py-1">
-                    "..."
-                </blockquote>
-            </div>
-
             <!-- Sub Metric Progress Bars -->
             <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-4">
                 <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-2">Algorithmic Breakdown</h3>
@@ -170,6 +162,14 @@
                 </div>
             </div>
 
+            <!-- Retitled and Repositioned Lyrics Verification Block -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-2">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lyrics Evaluated for Analysis</h4>
+                <blockquote id="report-snippet" class="text-sm italic text-slate-300 border-l-2 border-blue-500 pl-4 py-1 whitespace-pre-wrap font-mono max-h-80 overflow-y-auto">
+                    "..."
+                </blockquote>
+            </div>
+
             <button onclick="switchScreen('dashboard')" class="w-full bg-slate-800 text-slate-200 font-medium py-3 rounded-lg hover:bg-slate-700 transition">
                 ← Return to Master Database
             </button>
@@ -188,8 +188,8 @@
     </footer>
 
     <script>
-        // Make sure this is still your active deployment URL!
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbzq3FIfQWKBThCUHVrCW4jVLGV46UwS5vn_6fJ3kHlh_Y9UDcGTCtgLYScLeCPVfrIT/exec"; 
+        // 🚨 REMINDER: PASTE YOUR ACTIVE NEW WEB APP URL FROM STEP 1 HERE BETWEEN THE QUOTES!
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbwGKzd6vXTUP-1xlAmJJgaJJjRelxO3x0ycwo7-AppuUKKSiBHtpkUX1OaV5BQkVUuy/exec"; 
 
         let songs = [];
 
@@ -231,6 +231,10 @@
                 const card = document.createElement('div');
                 card.className = "bg-slate-950 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition cursor-pointer flex flex-col justify-between";
                 card.onclick = () => showSongDetails(song);
+                
+                // Keep the list dashboard view clean by parsing just the first line for the minor preview block
+                const shortPreview = song.snippet ? song.snippet.split('\n')[0].substring(0, 75) : '';
+                
                 card.innerHTML = `
                     <div class="space-y-2">
                         <div class="flex justify-between items-start gap-2">
@@ -239,7 +243,7 @@
                         </div>
                         <p class="text-xs text-slate-400">By ${song.author}</p>
                     </div>
-                    <p class="text-xs text-slate-500 mt-3 line-clamp-2 italic">"${song.snippet || ''}"</p>
+                    <p class="text-xs text-slate-500 mt-3 line-clamp-2 italic">"${shortPreview}..."</p>
                 `;
                 container.appendChild(card);
             });
@@ -254,7 +258,7 @@
         function showSongDetails(song) {
             document.getElementById('report-title').innerText = song.title;
             document.getElementById('report-author').innerText = `Author: ${song.author}`;
-            document.getElementById('report-snippet').innerText = song.snippet || "...";
+            document.getElementById('report-snippet').innerText = song.snippet || "No textual reference loaded.";
             document.getElementById('report-final-score').innerHTML = `${calculateFinalScore(song.doc, song.narr, song.sing)} <span class="text-lg text-slate-500 font-normal">/ 10</span>`;
             
             document.getElementById('score-doc-val').innerText = `${parseFloat(song.doc).toFixed(1)}/10`;
