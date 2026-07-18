@@ -386,6 +386,7 @@
             }
 
             errorToast.classList.add('hidden');
+            // Splits by double newlines to isolate each song block
             const songBlocks = rawBulkInput.split(/\n\s*\n/);
             
             document.getElementById('loading-text').innerText = `Initializing batch processing for ${songBlocks.length} songs via Gemini...`;
@@ -393,11 +394,15 @@
 
             let successCount = 0;
 
-            // Use a sequential loop to prevent Gemini API rate-limit crashing
             for (let index = 0; index < songBlocks.length; index++) {
-                const block = songBlocks[index];
-                const lines = block.trim().split('\n');
-                if (lines.length < 2) continue;
+                const block = songBlocks[index].trim();
+                if (!block) continue;
+                
+                const lines = block.split('\n');
+                if (lines.length < 2) {
+                    alert(`BULK SKIP: Block #${index + 1} does not have lyrics below the title line. Skipping.`);
+                    continue;
+                }
 
                 const metadataLine = lines[0].trim();
                 let title = metadataLine;
@@ -411,7 +416,7 @@
 
                 const lyrics = lines.slice(1).join('\n').trim();
 
-                document.getElementById('loading-text').innerText = `Gemini processing song [${index + 1}/${songBlocks.length}]: ${title}...`;
+                document.getElementById('loading-text').innerText = `[${index + 1}/${songBlocks.length}] Gemini analyzing: ${title}...`;
 
                 const payload = {
                     id: Date.now() + index,
@@ -421,7 +426,6 @@
                 };
 
                 try {
-                    // Using our new, successful POST method
                     const response = await fetch(DATABASE_API_URL, {
                         method: "POST",
                         body: JSON.stringify(payload)
@@ -431,28 +435,26 @@
                     const jsonResponse = JSON.parse(rawText);
                     
                     if (jsonResponse.status === "error") {
-                        console.error(`Error on ${title}: ${jsonResponse.message}`);
+                        alert(`BULK BACKEND ERROR on "${title}": ${jsonResponse.message}`);
                     } else {
                         successCount++;
                     }
                 } catch (err) {
-                    console.error(`Network error on ${title}: ${err.message}`);
+                    alert(`BULK NETWORK ERROR on "${title}": ${err.message}. Raw server response might be broken.`);
                 }
                 
-                // Give the API a 3-second breathing room before sending the next song
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                // 4-second delay to give the Gemini 3.5-flash API plenty of processing breathing room
+                await new Promise(resolve => setTimeout(resolve, 4000));
             }
 
-            // Cleanup and refresh
             document.getElementById('form-bulk-input').value = '';
-            document.getElementById('loading-text').innerText = `Finished! Successfully processed ${successCount} songs. Refreshing catalog...`;
+            document.getElementById('loading-text').innerText = `Finished! Processed ${successCount} entries. Syncing database...`;
             
             setTimeout(() => {
                 document.getElementById('loading-modal').classList.add('hidden');
                 refreshFromCloud();
             }, 2000);
         }
-
         function refreshFromCloud() {
             if (!DATABASE_API_URL) return;
             
