@@ -18,7 +18,7 @@
                 <span class="text-2xl">📜</span>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white">1689 Hymn Analyzer</h1>
-                    <p class="text-xs text-slate-400">Google Sheets Driven Evaluation App</p>
+                    <p class="text-xs text-slate-400">Gemini Live Cognitive Analysis Engine</p>
                 </div>
             </div>
             <nav class="flex gap-2">
@@ -40,9 +40,9 @@
                 <div class="space-y-1">
                     <h2 class="text-lg font-bold text-white">Cloud Master Catalog</h2>
                     <p class="text-sm text-slate-400 max-w-2xl">
-                        This list is powered entirely by your live Google Sheet database.
-                        Weights: <span class="text-blue-400 font-semibold">60% Doctrine</span>, 
-                        <span class="text-purple-400 font-semibold">30% Narrative Density</span>, and 
+                        This list displays data directly parsed by live instances of **Gemini 1.5 Pro**.
+                        Weights: <span class="text-blue-400 font-semibold">70% Doctrine</span>, 
+                        <span class="text-purple-400 font-semibold">20% Narrative Density</span>, and 
                         <span class="text-emerald-400 font-semibold">10% Corporate Singability</span>.
                     </p>
                 </div>
@@ -58,9 +58,7 @@
 
             <!-- Song List Grid -->
             <div id="song-catalog-grid" class="grid gap-4 sm:grid-cols-2">
-                <div class="col-span-full text-center py-12 text-slate-500 bg-slate-950/50 rounded-xl border border-slate-800/50">
-                    Connecting to Google Sheets deployment... If empty, use the submission form to add your first tracks.
-                </div>
+                <!-- Stored dynamically -->
             </div>
         </section>
 
@@ -105,7 +103,7 @@
                 </div>
 
                 <button onclick="processSingleDiagnostic()" class="w-full bg-blue-600 text-white font-medium py-3 rounded-lg hover:bg-blue-500 transition flex justify-center items-center gap-2">
-                    <span>⚡</span> Run 1689 Single Diagnostic
+                    <span>✨</span> Send directly to Gemini AI
                 </button>
             </div>
 
@@ -117,7 +115,7 @@
                 </div>
 
                 <button onclick="processBulkDiagnostic()" class="w-full bg-purple-600 text-white font-medium py-3 rounded-lg hover:bg-purple-500 transition flex justify-center items-center gap-2">
-                    <span>⚡</span> Execute Batch Analysis
+                    <span>✨</span> Execute Sequential Gemini Analysis
                 </button>
             </div>
         </section>
@@ -125,21 +123,21 @@
         <!-- SCREEN 3: ANALYSIS REPORT -->
         <section id="screen-report" class="hidden max-w-2xl mx-auto space-y-6">
             <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 text-center space-y-4">
-                <div class="text-xs font-semibold text-blue-400 uppercase tracking-widest">Diagnostic Summary</div>
+                <div class="text-xs font-semibold text-emerald-400 uppercase tracking-widest">Gemini Engine Analysis Complete</div>
                 <h2 id="report-title" class="text-2xl font-bold text-white">Song Title</h2>
                 <p id="report-author" class="text-sm text-slate-400">By Author</p>
                 
                 <div class="inline-block bg-slate-900 border border-slate-800 px-6 py-4 rounded-xl mt-2">
-                    <div class="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1">Master Index Score</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1">Calculated Index Score</div>
                     <div id="report-final-score" class="text-4xl font-black text-blue-400">0.0 <span class="text-lg text-slate-500 font-normal">/ 10</span></div>
                 </div>
             </div>
 
             <!-- Verification Block -->
             <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-2">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Version Verification Sample</h4>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Version Verification Sample Line</h4>
                 <blockquote id="report-snippet" class="text-sm italic text-slate-300 border-l-2 border-blue-500 pl-4 py-1">
-                    "Sample text block used for calculation verify"
+                    "..."
                 </blockquote>
             </div>
 
@@ -149,7 +147,7 @@
                 
                 <div>
                     <div class="flex justify-between text-xs font-medium mb-1">
-                        <span class="text-blue-400">Doctrinal Precision (60% Weight)</span>
+                        <span class="text-blue-400">Doctrinal Precision (70% Weight)</span>
                         <span id="score-doc-val" class="text-slate-300">0.0/10</span>
                     </div>
                     <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
@@ -159,7 +157,7 @@
 
                 <div>
                     <div class="flex justify-between text-xs font-medium mb-1">
-                        <span class="text-purple-400">Narrative Density (30% Weight)</span>
+                        <span class="text-purple-400">Narrative Density (20% Weight)</span>
                         <span id="score-narr-val" class="text-slate-300">0.0/10</span>
                     </div>
                     <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
@@ -182,12 +180,12 @@
             <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-4">
                 <div>
                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">1689 Confessional Analysis Summary</h4>
-                    <p id="report-summary" class="text-sm text-slate-300 leading-relaxed font-normal">Summary paragraphs.</p>
+                    <p id="report-summary" class="text-sm text-slate-300 leading-relaxed font-normal">...</p>
                 </div>
                 <hr class="border-slate-800">
                 <div>
                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Liturgical Placement Recommendation</h4>
-                    <span id="report-placement" class="inline-block bg-slate-900 text-slate-200 text-xs px-3 py-1.5 rounded-md border border-slate-800 font-medium mt-1">Recommended Segment</span>
+                    <span id="report-placement" class="inline-block bg-slate-900 text-slate-200 text-xs px-3 py-1.5 rounded-md border border-slate-800 font-medium mt-1">...</span>
                 </div>
             </div>
 
@@ -197,19 +195,20 @@
         </section>
     </main>
 
-    <!-- LOADING MODAL SIMULATOR -->
+    <!-- LOADING MODAL -->
     <div id="loading-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex flex-col justify-center items-center space-y-3">
         <div class="animate-spin rounded-full h-10 w-10 border-2 border-blue-500 border-t-transparent"></div>
-        <p id="loading-text" class="text-sm font-medium text-slate-400 tracking-wide">Executing 1689 Confessional Core Review...</p>
+        <p id="loading-text" class="text-sm font-medium text-slate-400 tracking-wide">Connecting to Gemini AI Engine...</p>
     </div>
 
     <!-- Footer -->
     <footer class="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
-        <p>© 2026 1689 Hymn Analyzer. Built for Confessional Reformed Worship Teams.</p>
+        <p>© 2026 1689 Hymn Analyzer. Securely Routed Through Google AI Systems.</p>
     </footer>
 
     <script>
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbx4bZY-Ioh_BmsEybJNd3fiqBiRhtZcxA2bsgM2AU0UcypPscyuSGYqeh8JDU9Ufm_g/exec"; 
+        // LIVE INSTALLED GOOGLE SHEETS API ENDPOINT RELAY URL
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyk3iw5Hu8wDNh3pITEJb74awW1lraah33OCmYSEsu2OzY6lAai2nb6FXFVnM7nuJbc/exec"; 
 
         let songs = [];
 
@@ -218,8 +217,9 @@
             try { songs = JSON.parse(localData); } catch(e) { songs = []; }
         }
 
+        // 70% / 20% / 10% WEIGHT ADJUSTMENT COEFFICIENTS
         function calculateFinalScore(doc, narr, sing) {
-            return ((doc * 0.6) + (narr * 0.3) + (sing * 0.1)).toFixed(1);
+            return ((doc * 0.7) + (narr * 0.2) + (sing * 0.1)).toFixed(1);
         }
 
         function switchScreen(screenName) {
@@ -227,14 +227,12 @@
             document.getElementById('screen-submit').classList.add('hidden');
             document.getElementById('screen-report').classList.add('hidden');
             document.getElementById('form-error-toast').classList.add('hidden'); 
-            
             document.getElementById(`screen-${screenName}`).classList.remove('hidden');
 
             document.getElementById('nav-dashboard').className = "px-4 py-2 rounded-lg text-sm font-medium " + (screenName === 'dashboard' ? "bg-blue-600 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700") + " transition";
             document.getElementById('nav-submit').className = "px-4 py-2 rounded-lg text-sm font-medium " + (screenName === 'submit' ? "bg-blue-600 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700") + " transition";
         }
 
-        // CONTROL INPUT FIELDS PRESENTATION TOGGLE
         function toggleSubmitMode(mode) {
             document.getElementById('form-error-toast').classList.add('hidden');
             if (mode === 'single') {
@@ -255,7 +253,7 @@
             container.innerHTML = '';
             
             if (songsToShow.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 bg-slate-950/50 rounded-xl border border-slate-800/50">No tracks stored. Use the submission tab to add songs.</div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 bg-slate-950/50 rounded-xl border border-slate-800/50">No records found. Submit songs to populate database.</div>`;
                 return;
             }
 
@@ -276,7 +274,7 @@
                         </div>
                         <p class="text-xs text-slate-400">By ${song.author}</p>
                     </div>
-                    <p class="text-xs text-slate-500 mt-3 line-clamp-2 italic">"${song.snippet}"</p>
+                    <p class="text-xs text-slate-500 mt-3 line-clamp-2 italic">"${song.snippet || ''}"</p>
                 `;
                 container.appendChild(card);
             });
@@ -290,13 +288,13 @@
 
         function showSongDetails(song) {
             document.getElementById('report-title').innerText = song.title;
-            document.getElementById('report-author').innerText = `Identified Version/Author Used: ${song.author}`;
-            document.getElementById('report-snippet').innerText = song.snippet;
+            document.getElementById('report-author').innerText = `Author: ${song.author}`;
+            document.getElementById('report-snippet').innerText = song.snippet || "...";
             document.getElementById('report-final-score').innerHTML = `${calculateFinalScore(song.doc, song.narr, song.sing)} <span class="text-lg text-slate-500 font-normal">/ 10</span>`;
             
-            document.getElementById('score-doc-val').innerText = `${song.doc.toFixed(1)}/10`;
-            document.getElementById('score-narr-val').innerText = `${song.narr.toFixed(1)}/10`;
-            document.getElementById('score-sing-val').innerText = `${song.sing.toFixed(1)}/10`;
+            document.getElementById('score-doc-val').innerText = `${parseFloat(song.doc).toFixed(1)}/10`;
+            document.getElementById('score-narr-val').innerText = `${parseFloat(song.narr).toFixed(1)}/10`;
+            document.getElementById('score-sing-val').innerText = `${parseFloat(song.sing).toFixed(1)}/10`;
             
             document.getElementById('report-summary').innerText = song.summary;
             document.getElementById('report-placement').innerText = song.placement;
@@ -310,96 +308,6 @@
             }, 150);
         }
 
-        // HEURISTIC POETIC PARSER (AIRTIGHT COMPRESSOR ENGINE)
-        function runHeuristicEvaluation(title, author, lyrics) {
-            const normalizedText = lyrics.toLowerCase();
-            const normalizedTitle = title.toLowerCase();
-            
-            if (normalizedTitle.includes("fount") || (normalizedText.includes("fount") && (normalizedText.includes("ebenezer") || normalizedText.includes("prone to wander")))) {
-                return {
-                    id: Date.now() + Math.floor(Math.random() * 1000),
-                    title: title,
-                    author: author || "Robert Robinson",
-                    doc: 9.6,  
-                    narr: 9.2, 
-                    sing: 9.6, 
-                    summary: "EXCELLENT. This hymn beautifully articulates sovereign, monergistic grace and effectual calling ('Jesus sought me when a stranger... interposed His precious blood'). It explicitly recognizes the reality of indwelling sin and the absolute necessity of divine preservation for the believer ('prone to wander, Lord, I feel it... seal it for Thy courts above'). It provides an unshakeable, objective baseline of covenant security for the local church.",
-                    snippet: lyrics ? lyrics.split('\n')[0] : "Come, Thou Fount of every blessing, tune my heart to sing Thy grace...",
-                    placement: "Assurance of Pardon / Post-Sermon Response"
-                };
-            }
-
-            let docScore = 4.0; 
-            const strongTheologyWords = [
-                'blood', 'cross', 'wrath', 'impute', 'justice', 'forensic', 'law', 'substitution', 
-                'satisfy', 'propitiation', 'atonement', 'debt', 'ransom', 'reconcile', 'grave', 'pardon'
-            ];
-            
-            let matchedTheology = 0;
-            strongTheologyWords.forEach(word => {
-                if (normalizedText.includes(word)) matchedTheology++;
-            });
-            if (matchedTheology > 0) docScore += Math.min(matchedTheology * 1.2, 6.0);
-            
-            if (docScore > 10.0) docScore = 10.0;
-            if (docScore < 1.0) docScore = 1.0;
-
-            let narrScore = 5.0; 
-            const structuralStoryWords = [
-                'then', 'walked', 'heaven', 'earth', 'fall', 'arise', 'reign', 'forever', 
-                'generation', 'history', 'promised', 'prophet', 'king', 'throne'
-            ];
-            let matchedStory = 0;
-            structuralStoryWords.forEach(word => {
-                if (normalizedText.includes(word)) matchedStory++;
-            });
-            narrScore += Math.min(matchedStory * 0.8, 5.0);
-
-            const repetitionPenalties = ['yeah', 'oh', 'whoah', 'baby', 'repeat'];
-            repetitionPenalties.forEach(word => {
-                if (normalizedText.includes(word)) narrScore -= 1.0;
-            });
-            if (narrScore < 1.0) narrScore = 1.0;
-            if (narrScore > 10.0) narrScore = 10.0;
-
-            let singScore = 9.0; 
-            const difficultVocalIndicators = ['syncopated', 'bridge run', 'scale', 'improvise', 'solo', 'riff'];
-            difficultVocalIndicators.forEach(indicator => {
-                if (normalizedText.includes(indicator)) singScore -= 2.0;
-            });
-            if (singScore < 1.0) singScore = 1.0;
-            if (singScore > 10.0) singScore = 10.0;
-
-            let summary = "";
-            let placement = "";
-
-            if (docScore >= 8.5) {
-                summary = "This piece displays pristine theological fidelity. By explicitly declaring the forensic transaction of redemption and focusing heavily on the passive and active obedience of the Substitute, it perfectly aligns with 1689 standards.";
-                placement = "Assurance of Pardon / Post-Sermon Reflection";
-            } else if (docScore >= 6.0) {
-                summary = "A solid, scripturally faithful modern setting. While entirely orthodox in its baseline descriptions, it shifts slightly toward experiential response rather than heavily unpacking objective, legal salvation mechanics.";
-                placement = "Congregational Response / Gathering Call";
-            } else {
-                summary = "Theological density is heavily compromised. The lyrical framework relies entirely on generalized, emotional expressions of adoration, leaving the legal transaction of reconciliation completely unaddressed.";
-                placement = "Opening Gathering / Threshold Call Only";
-            }
-
-            const cleanSnippet = lyrics ? lyrics.split('\n')[0] : "Praise the Lord for all His grace...";
-
-            return {
-                id: Date.now() + Math.floor(Math.random() * 1000),
-                title: title,
-                author: author || "Custom Version",
-                doc: parseFloat(docScore.toFixed(1)),
-                narr: parseFloat(narrScore.toFixed(1)),
-                sing: parseFloat(singScore.toFixed(1)),
-                summary: summary,
-                snippet: cleanSnippet,
-                placement: placement
-            };
-        }
-
-        // HANDLER 1: SINGLE BOX ENTRIES PROCESSOR
         function processSingleDiagnostic() {
             const titleInput = document.getElementById('form-title');
             const authorInput = document.getElementById('form-author');
@@ -408,120 +316,108 @@
             const errorText = document.getElementById('form-error-text');
 
             const title = titleInput.value.trim();
-            const author = authorInput.value.trim() || "Unknown Author / Custom Setup";
-            const lyrics = lyricsInput.value.trim() || "Praise the Lord for all His grace...";
+            const author = authorInput.value.trim() || "Unknown Author";
+            const lyrics = lyricsInput.value.trim();
 
-            if (!title) {
-                errorText.innerText = "The Song Title is required to run the single diagnostic.";
+            if (!title || !lyrics) {
+                errorText.innerText = "Title and Lyrics are both required to run Gemini evaluations.";
                 errorToast.classList.remove('hidden');
                 return;
             }
 
             errorToast.classList.add('hidden');
-            document.getElementById('loading-text').innerText = "Executing 1689 Confessional Review...";
+            document.getElementById('loading-text').innerText = "Gemini AI is reading and scoring text...";
             document.getElementById('loading-modal').classList.remove('hidden');
 
-            setTimeout(() => {
+            const initialPayload = {
+                id: Date.now(),
+                title: title,
+                author: author,
+                lyrics: lyrics
+            };
+
+            fetch(DATABASE_API_URL, {
+                method: "POST",
+                body: JSON.stringify(initialPayload)
+            })
+            .then(() => {
+                setTimeout(() => {
+                    titleInput.value = '';
+                    authorInput.value = '';
+                    lyricsInput.value = '';
+                    refreshFromCloud();
+                }, 1000);
+            })
+            .catch(err => {
                 document.getElementById('loading-modal').classList.add('hidden');
-                
-                const analyzedSong = runHeuristicEvaluation(title, author, lyrics);
-                songs.push(analyzedSong);
-
-                if (DATABASE_API_URL) {
-                    fetch(DATABASE_API_URL, {
-                        method: "POST",
-                        mode: "no-cors",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(analyzedSong)
-                    }).catch(err => console.log("Cloud insert skipped: ", err));
-                }
-
-                localStorage.setItem('hymns_db_v3', JSON.stringify(songs));
-                titleInput.value = '';
-                authorInput.value = '';
-                lyricsInput.value = '';
-
-                displayCatalog(songs);
-                showSongDetails(analyzedSong);
-            }, 1200);
+                alert("Cloud transmission error.");
+            });
         }
 
-        // HANDLER 2: BULK SCANNED ARRAYS PROCESSOR
         function processBulkDiagnostic() {
             const rawBulkInput = document.getElementById('form-bulk-input').value.trim();
             const errorToast = document.getElementById('form-error-toast');
             const errorText = document.getElementById('form-error-text');
 
             if (!rawBulkInput) {
-                errorText.innerText = "Please paste batch contents to evaluate.";
+                errorText.innerText = "Please paste batch details.";
                 errorToast.classList.remove('hidden');
                 return;
             }
 
             errorToast.classList.add('hidden');
             const songBlocks = rawBulkInput.split(/\n\s*\n/);
-            const analyzedBatch = [];
+            
+            document.getElementById('loading-text').innerText = `Initializing batch processing for ${songBlocks.length} loops via Gemini context...`;
+            document.getElementById('loading-modal').classList.remove('hidden');
 
-            songBlocks.forEach(block => {
+            let promiseChain = Promise.resolve();
+
+            songBlocks.forEach((block, index) => {
                 const lines = block.trim().split('\n');
-                if (lines.length < 1) return;
+                if (lines.length < 2) return;
 
                 const metadataLine = lines[0].trim();
-                let title = "Untitled Track";
+                let title = metadataLine;
                 let author = "Unknown Author";
 
                 if (metadataLine.includes('-')) {
                     const parts = metadataLine.split('-');
                     title = parts[0].trim();
                     author = parts.slice(1).join('-').trim();
-                } else {
-                    title = metadataLine;
                 }
 
                 const lyrics = lines.slice(1).join('\n').trim();
-                
-                if(title) {
-                    const evaluation = runHeuristicEvaluation(title, author, lyrics);
-                    analyzedBatch.push(evaluation);
-                }
+
+                promiseChain = promiseChain.then(() => {
+                    document.getElementById('loading-text').innerText = `Gemini processing song [${index + 1}/${songBlocks.length}]: ${title}...`;
+                    return fetch(DATABASE_API_URL, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            id: Date.now() + index,
+                            title: title,
+                            author: author,
+                            lyrics: lyrics
+                        })
+                    });
+                });
             });
 
-            if (analyzedBatch.length === 0) {
-                errorText.innerText = "Could not parse any structured tracks. Verify format syntax.";
-                errorToast.classList.remove('hidden');
-                return;
-            }
-
-            document.getElementById('loading-text').innerText = `Analyzing collection batch of ${analyzedBatch.length} tracks...`;
-            document.getElementById('loading-modal').classList.remove('hidden');
-
-            setTimeout(() => {
+            promiseChain.then(() => {
+                setTimeout(() => {
+                    document.getElementById('form-bulk-input').value = '';
+                    refreshFromCloud();
+                }, 1500);
+            }).catch(() => {
                 document.getElementById('loading-modal').classList.add('hidden');
-                
-                analyzedBatch.forEach(song => {
-                    songs.push(song);
-                    if (DATABASE_API_URL) {
-                        fetch(DATABASE_API_URL, {
-                            method: "POST",
-                            mode: "no-cors",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(song)
-                        }).catch(err => console.log("Cloud push skipped: ", err));
-                    }
-                });
-
-                localStorage.setItem('hymns_db_v3', JSON.stringify(songs));
-                document.getElementById('form-bulk-input').value = '';
-                
-                displayCatalog(songs);
-                showSongDetails(analyzedBatch[analyzedBatch.length - 1]);
-            }, 1500);
+                alert("Error inside loop processing execution context.");
+            });
         }
 
         function refreshFromCloud() {
             if (!DATABASE_API_URL) return;
             
-            document.getElementById('loading-text').innerText = "Syncing with Google Sheets database...";
+            document.getElementById('loading-text').innerText = "Downloading updated analysis records from cloud...";
             document.getElementById('loading-modal').classList.remove('hidden');
 
             fetch(DATABASE_API_URL)
@@ -532,25 +428,19 @@
                         songs = cloudSongs;
                         localStorage.setItem('hymns_db_v3', JSON.stringify(songs));
                         displayCatalog(songs);
+                        switchScreen('dashboard');
                     }
                 })
                 .catch(err => {
                     document.getElementById('loading-modal').classList.add('hidden');
-                    alert("Could not pull records from live cloud database configuration.");
+                    console.log(err);
                 });
         }
 
-        displayCatalog(songs);
         if (DATABASE_API_URL) {
-            fetch(DATABASE_API_URL)
-                .then(res => res.json())
-                .then(cloudSongs => {
-                    if (Array.isArray(cloudSongs) && cloudSongs.length > 0) {
-                        songs = cloudSongs;
-                        localStorage.setItem('hymns_db_v3', JSON.stringify(songs));
-                        displayCatalog(songs);
-                    }
-                }).catch(e => console.log("Startup data download complete."));
+            refreshFromCloud();
+        } else {
+            displayCatalog(songs);
         }
     </script>
 </body>
