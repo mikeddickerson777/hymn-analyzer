@@ -204,7 +204,7 @@
     </footer>
 
     <script>
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbxPcdn3HrRqywVhq0DWEzZC6FqSoAMIF4Lo_dVrCd30w82xkzX2RLyIRz6IyyViz70E/exec"; 
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyTpbfqFzplnD8qnj5XjoNa4Bik128I3UL_jt7xfMl7cJ8iv1KqLRFhZBM3X_do-tyW/exec"; 
 
         let songs = [];
 
@@ -213,7 +213,6 @@
             try { songs = JSON.parse(localData); } catch(e) { songs = []; }
         }
 
-        // 70% / 20% / 10% WEIGHT ADJUSTMENT COEFFICIENTS
         function calculateFinalScore(doc, narr, sing) {
             return ((doc * 0.7) + (narr * 0.2) + (sing * 0.1)).toFixed(1);
         }
@@ -304,7 +303,7 @@
             }, 150);
         }
 
-        // INTEGRATED REDIRECT BYPASS: Packets stream natively through an Image ping to clear pipeline jumps
+        // FIXED: Rebuilt network stream to securely wait for Gemini response payload to resolve completely
         function processSingleDiagnostic() {
             const titleInput = document.getElementById('form-title');
             const authorInput = document.getElementById('form-author');
@@ -323,11 +322,11 @@
             }
 
             if (!lyrics) {
-                lyrics = `[System Flag: No custom lyrics provided. Please evaluate the standard, historically recognized text of the hymn "${title}" by ${author}.]`;
+                lyrics = `[System Flag: No custom lyrics provided. Evaluate the standard historically recognized text of the hymn "${title}" by ${author}.]`;
             }
 
             errorToast.classList.add('hidden');
-            document.getElementById('loading-text').innerText = "Gemini AI is reading and scoring text (this takes 3-5 seconds)...";
+            document.getElementById('loading-text').innerText = "Running full diagnostic connection...";
             document.getElementById('loading-modal').classList.remove('hidden');
 
             const initialPayload = {
@@ -337,21 +336,44 @@
                 lyrics: lyrics
             };
 
-            const targetUrl = DATABASE_API_URL + "?callback=jsonp&action=insert&data=" + encodeURIComponent(JSON.stringify(initialPayload));
-            
-            const ping = new Image();
-            
-            setTimeout(() => {
-                titleInput.value = '';
-                authorInput.value = '';
-                lyricsInput.value = '';
-                document.getElementById('loading-modal').classList.add('hidden');
-                refreshFromCloud();
-            }, 4500);
-            
-            ping.src = targetUrl;
-        }
+            fetch(DATABASE_API_URL, {
+                method: "POST",
+                body: JSON.stringify(initialPayload) // Sends plain text to bypass CORS preflight
+            })
+            .then(response => response.text()) // Grab raw text to catch Google HTML errors
+            .then(rawText => {
+                console.log("Raw Server Response:", rawText); // Drops response in dev console
+                
+                try {
+                    const jsonResponse = JSON.parse(rawText);
+                    
+                    if (jsonResponse.status === "error") {
+                        alert("BACKEND SCRIPT ERROR: " + jsonResponse.message);
+                        document.getElementById('loading-modal').classList.add('hidden');
+                        return;
+                    }
+                    
+                    // Total Success Path
+                    titleInput.value = '';
+                    authorInput.value = '';
+                    lyricsInput.value = '';
+                    
+                    songs.push(jsonResponse.data);
+                    localStorage.setItem('hymns_db_v3', JSON.stringify(songs));
+                    document.getElementById('loading-modal').classList.add('hidden');
+                    showSongDetails(jsonResponse.data);
 
+                } catch (parseError) {
+                    alert("SERVER ERROR: Google did not return JSON. It returned: " + rawText.substring(0, 150) + "...");
+                    document.getElementById('loading-modal').classList.add('hidden');
+                }
+            })
+            .catch(err => {
+                alert("NETWORK BLOCKED: " + err.message);
+                document.getElementById('loading-modal').classList.add('hidden');
+            });
+        }
+        // FIXED: Rebuilt bulk processing stream to handle asynchronous sequencing loops safely
         function processBulkDiagnostic() {
             const rawBulkInput = document.getElementById('form-bulk-input').value.trim();
             const errorToast = document.getElementById('form-error-toast');
@@ -389,19 +411,16 @@
 
                 promiseChain = promiseChain.then(() => {
                     document.getElementById('loading-text').innerText = `Gemini processing song [${index + 1}/${songBlocks.length}]: ${title}...`;
-                    
-                    const payload = {
-                        id: Date.now() + index,
-                        title: title,
-                        author: author,
-                        lyrics: lyrics
-                    };
-                    
-                    const targetUrl = DATABASE_API_URL + "?callback=jsonp&action=insert&data=" + encodeURIComponent(JSON.stringify(payload));
-                    const ping = new Image();
-                    ping.src = targetUrl;
-
-                    return new Promise(resolve => setTimeout(resolve, 5000));
+                    return fetch(DATABASE_API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain" },
+                        body: JSON.stringify({
+                            id: Date.now() + index,
+                            title: title,
+                            author: author,
+                            lyrics: lyrics
+                        })
+                    });
                 });
             });
 
