@@ -36,17 +36,22 @@
         
         <!-- SCREEN 1: DASHBOARD -->
         <section id="screen-dashboard" class="space-y-6">
-            <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="space-y-1">
-                    <h2 class="text-lg font-bold text-white">Cloud Master Catalog</h2>
-                    <p class="text-sm text-slate-400 max-w-2xl">
-                        This list displays data directly parsed by live instances of **Gemini 3.5 Flash**.
-                        Weights: <span class="text-blue-400 font-semibold">70% Doctrine</span>, 
-                        <span class="text-purple-400 font-semibold">20% Narrative Density</span>, and 
-                        <span class="text-emerald-400 font-semibold">10% Corporate Singability</span>.
+            <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 flex flex-col md:flex-row md:items-start justify-between gap-6">
+                <div class="space-y-4">
+                    <p class="text-sm text-slate-300 max-w-3xl leading-relaxed">
+                        This was created as a free resource to support Pastors and worship pastors as they assess possible songs for worship. The analysis is done by Gemini AI (3.5 Flash) and compares the songs to the 1689 2nd London Baptist Confession for doctrinal accuracy. It uses this scale for scoring: Weights: <span class="text-blue-400 font-semibold">70% Doctrine</span>, <span class="text-purple-400 font-semibold">20% Narrative Density</span>, and <span class="text-emerald-400 font-semibold">10% Corporate Singability</span>.
                     </p>
+                    <p class="text-sm text-slate-400 italic">
+                        If you encounter any issues or have questions, please contact me at <a href="mailto:mikeddickerson@gmail.com" class="text-blue-400 hover:text-blue-300 underline transition">mikeddickerson@gmail.com</a>.
+                    </p>
+                    <div class="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg flex items-center gap-2">
+                        <span>⚠️</span>
+                        <p class="text-xs text-amber-400 font-medium leading-relaxed">
+                            Please search the existing database before entering a song under "Analyze Songs", as putting in an existing song will create a duplicate record.
+                        </p>
+                    </div>
                 </div>
-                <button onclick="refreshFromCloud()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-lg text-xs font-semibold text-slate-200 transition shrink-0">
+                <button onclick="refreshFromCloud()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-lg text-xs font-semibold text-slate-200 transition shrink-0 mt-1 md:mt-0">
                     🔄 Sync From Google Sheet
                 </button>
             </div>
@@ -63,8 +68,10 @@
         <!-- SCREEN 2: USER SUBMISSION FORM -->
         <section id="screen-submit" class="hidden max-w-2xl mx-auto bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
             <div class="border-b border-slate-800 pb-4">
-                <h2 class="text-xl font-bold text-white mb-1">Submit & Evaluate Tracks</h2>
-                <p class="text-sm text-slate-400">Add custom song arrangements directly to your cloud spreadsheet archive.</p>
+                <h2 class="text-xl font-bold text-white mb-2">Submit & Evaluate Tracks</h2>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    Submit your song below. Only a title is required, but for the most accurate response, submit an author as well, or, to be sure your exact song is getting analyzed, paste the lyrics of the song in the text box. Also, please format the song title with proper capitalization and spelling as anything entered will be added to the database for everyone to use!
+                </p>
             </div>
 
             <div id="form-error-toast" class="hidden bg-rose-500/10 border border-rose-500/30 text-rose-400 p-4 rounded-lg text-sm flex items-center gap-2">
@@ -181,8 +188,8 @@
     </footer>
 
     <script>
-        // Use your current active deployment URL from Step 3
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbzq3FIfQWKBThCUHVrCW4jVLGV46UwS5vn_6fJ3kHlh_Y9UDcGTCtgLYScLeCPVfrIT/exec"; 
+        // Make sure this is still your active deployment URL!
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbxPcdn3HrRqywVhq0DWEzZC6FqSoAMIF4Lo_dVrCd30w82xkzX2RLyIRz6IyyViz70E/exec"; 
 
         let songs = [];
 
