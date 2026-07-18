@@ -34,7 +34,7 @@
 
     <main class="max-w-5xl mx-auto px-4 py-8 flex-grow w-full">
         
-        <!-- SCREEN 1: DASHBOARD / CLOUD DATABASE -->
+        <!-- SCREEN 1: DASHBOARD -->
         <section id="screen-dashboard" class="space-y-6">
             <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="space-y-1">
@@ -62,7 +62,7 @@
             </div>
         </section>
 
-        <!-- SCREEN 2: USER SUBMISSION FORM (DUAL INTERFACE) -->
+        <!-- SCREEN 2: USER SUBMISSION FORM -->
         <section id="screen-submit" class="hidden max-w-2xl mx-auto bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
                 <div>
@@ -98,8 +98,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Lyrical Text Block (Recommended)</label>
-                    <textarea id="form-lyrics" rows="6" placeholder="Paste specific custom verses or altered choruses here to evaluate exact textual wording variances..." class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition"></textarea>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Lyrical Text Block (Optional)</label>
+                    <textarea id="form-lyrics" rows="6" placeholder="Paste specific custom verses here... Leave blank to let Gemini evaluate the standard historical text automatically." class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition"></textarea>
                 </div>
 
                 <button onclick="processSingleDiagnostic()" class="w-full bg-blue-600 text-white font-medium py-3 rounded-lg hover:bg-blue-500 transition flex justify-center items-center gap-2">
@@ -207,7 +207,7 @@
     </footer>
 
     <script>
-        // PLACE YOUR WEB APP RELAY URL HERE[cite: 1]
+        // LIVE INSTALLED GOOGLE SHEETS API ENDPOINT RELAY URL
         const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbxPcdn3HrRqywVhq0DWEzZC6FqSoAMIF4Lo_dVrCd30w82xkzX2RLyIRz6IyyViz70E/exec"; 
 
         let songs = [];
@@ -217,7 +217,7 @@
             try { songs = JSON.parse(localData); } catch(e) { songs = []; }
         }
 
-        // ADJUSTED WEIGHT COEFFICIENTS (70% / 20% / 10%)[cite: 1]
+        // 70% / 20% / 10% WEIGHT ADJUSTMENT COEFFICIENTS
         function calculateFinalScore(doc, narr, sing) {
             return ((doc * 0.7) + (narr * 0.2) + (sing * 0.1)).toFixed(1);
         }
@@ -319,14 +319,14 @@
             const author = authorInput.value.trim() || "Unknown Author";
             let lyrics = lyricsInput.value.trim();
 
-            // FIXED: Only the title is strictly mandatory now
+            // ONLY Title verification check is active now
             if (!title) {
                 errorText.innerText = "The Song Title is required to run the single diagnostic.";
                 errorToast.classList.remove('hidden');
                 return;
             }
 
-            // Smart fallback instruction passed to Gemini if the lyric field is blank
+            // Fallback instruction triggers seamlessly if you leave the lyric field empty
             if (!lyrics) {
                 lyrics = `[System Flag: No custom lyrics provided. Please evaluate the standard, historically recognized text of the hymn "${title}" by ${author}.]`;
             }
@@ -342,7 +342,6 @@
                 lyrics: lyrics
             };
 
-            // STRICT CORS BYPASS CONFIGURATION
             fetch(DATABASE_API_URL, {
                 method: "POST",
                 mode: "no-cors",
@@ -362,6 +361,7 @@
                 alert("Cloud transmission error.");
             });
         }
+
         function processBulkDiagnostic() {
             const rawBulkInput = document.getElementById('form-bulk-input').value.trim();
             const errorToast = document.getElementById('form-error-toast');
@@ -401,6 +401,8 @@
                     document.getElementById('loading-text').innerText = `Gemini processing song [${index + 1}/${songBlocks.length}]: ${title}...`;
                     return fetch(DATABASE_API_URL, {
                         method: "POST",
+                        mode: "no-cors",
+                        headers: { "Content-Type": "text/plain" },
                         body: JSON.stringify({
                             id: Date.now() + index,
                             title: title,
@@ -415,7 +417,7 @@
                 setTimeout(() => {
                     document.getElementById('form-bulk-input').value = '';
                     refreshFromCloud();
-                }, 1500);
+                }, 2500);
             }).catch(() => {
                 document.getElementById('loading-modal').classList.add('hidden');
                 alert("Error inside loop processing execution context.");
@@ -423,7 +425,7 @@
         }
 
         function refreshFromCloud() {
-            if (!DATABASE_API_URL || DATABASE_API_URL.includes("PASTE")) return;
+            if (!DATABASE_API_URL) return;
             
             document.getElementById('loading-text').innerText = "Downloading updated analysis records from cloud...";
             document.getElementById('loading-modal').classList.remove('hidden');
@@ -445,7 +447,7 @@
                 });
         }
 
-        if (DATABASE_API_URL && !DATABASE_API_URL.includes("PASTE")) {
+        if (DATABASE_API_URL) {
             refreshFromCloud();
         } else {
             displayCatalog(songs);
