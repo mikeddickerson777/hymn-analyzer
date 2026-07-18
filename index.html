@@ -374,7 +374,7 @@
             });
         }
         // FIXED: Rebuilt bulk processing stream to handle asynchronous sequencing loops safely
-        function processBulkDiagnostic() {
+        async function processBulkDiagnostic() {
             const rawBulkInput = document.getElementById('form-bulk-input').value.trim();
             const errorToast = document.getElementById('form-error-toast');
             const errorText = document.getElementById('form-error-text');
@@ -388,14 +388,16 @@
             errorToast.classList.add('hidden');
             const songBlocks = rawBulkInput.split(/\n\s*\n/);
             
-            document.getElementById('loading-text').innerText = `Initializing batch processing for ${songBlocks.length} loops via Gemini context...`;
+            document.getElementById('loading-text').innerText = `Initializing batch processing for ${songBlocks.length} songs via Gemini...`;
             document.getElementById('loading-modal').classList.remove('hidden');
 
-            let promiseChain = Promise.resolve();
+            let successCount = 0;
 
-            songBlocks.forEach((block, index) => {
+            // Use a sequential loop to prevent Gemini API rate-limit crashing
+            for (let index = 0; index < songBlocks.length; index++) {
+                const block = songBlocks[index];
                 const lines = block.trim().split('\n');
-                if (lines.length < 2) return;
+                if (lines.length < 2) continue;
 
                 const metadataLine = lines[0].trim();
                 let title = metadataLine;
@@ -409,28 +411,46 @@
 
                 const lyrics = lines.slice(1).join('\n').trim();
 
-                promiseChain = promiseChain.then(() => {
-                    document.getElementById('loading-text').innerText = `Gemini processing song [${index + 1}/${songBlocks.length}]: ${title}...`;
-                    return fetch(DATABASE_API_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "text/plain" },
-                        body: JSON.stringify({
-                            id: Date.now() + index,
-                            title: title,
-                            author: author,
-                            lyrics: lyrics
-                        })
-                    });
-                });
-            });
+                document.getElementById('loading-text').innerText = `Gemini processing song [${index + 1}/${songBlocks.length}]: ${title}...`;
 
-            promiseChain.then(() => {
-                document.getElementById('form-bulk-input').value = '';
-                refreshFromCloud();
-            }).catch(() => {
+                const payload = {
+                    id: Date.now() + index,
+                    title: title,
+                    author: author,
+                    lyrics: lyrics
+                };
+
+                try {
+                    // Using our new, successful POST method
+                    const response = await fetch(DATABASE_API_URL, {
+                        method: "POST",
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const rawText = await response.text();
+                    const jsonResponse = JSON.parse(rawText);
+                    
+                    if (jsonResponse.status === "error") {
+                        console.error(`Error on ${title}: ${jsonResponse.message}`);
+                    } else {
+                        successCount++;
+                    }
+                } catch (err) {
+                    console.error(`Network error on ${title}: ${err.message}`);
+                }
+                
+                // Give the API a 3-second breathing room before sending the next song
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            }
+
+            // Cleanup and refresh
+            document.getElementById('form-bulk-input').value = '';
+            document.getElementById('loading-text').innerText = `Finished! Successfully processed ${successCount} songs. Refreshing catalog...`;
+            
+            setTimeout(() => {
                 document.getElementById('loading-modal').classList.add('hidden');
-                alert("Error inside loop processing execution context.");
-            });
+                refreshFromCloud();
+            }, 2000);
         }
 
         function refreshFromCloud() {
