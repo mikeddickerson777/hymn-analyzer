@@ -317,12 +317,18 @@
 
             const title = titleInput.value.trim();
             const author = authorInput.value.trim() || "Unknown Author";
-            const lyrics = lyricsInput.value.trim();
+            let lyrics = lyricsInput.value.trim();
 
-            if (!title || !lyrics) {
-                errorText.innerText = "Title and Lyrics are both required to run Gemini evaluations.";
+            // FIXED: Only the title is strictly mandatory now
+            if (!title) {
+                errorText.innerText = "The Song Title is required to run the single diagnostic.";
                 errorToast.classList.remove('hidden');
                 return;
+            }
+
+            // Smart fallback instruction passed to Gemini if the lyric field is blank
+            if (!lyrics) {
+                lyrics = `[System Flag: No custom lyrics provided. Please evaluate the standard, historically recognized text of the hymn "${title}" by ${author}.]`;
             }
 
             errorToast.classList.add('hidden');
@@ -336,8 +342,11 @@
                 lyrics: lyrics
             };
 
+            // STRICT CORS BYPASS CONFIGURATION
             fetch(DATABASE_API_URL, {
                 method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify(initialPayload)
             })
             .then(() => {
@@ -346,14 +355,13 @@
                     authorInput.value = '';
                     lyricsInput.value = '';
                     refreshFromCloud();
-                }, 1000);
+                }, 2000);
             })
             .catch(err => {
                 document.getElementById('loading-modal').classList.add('hidden');
                 alert("Cloud transmission error.");
             });
         }
-
         function processBulkDiagnostic() {
             const rawBulkInput = document.getElementById('form-bulk-input').value.trim();
             const errorToast = document.getElementById('form-error-toast');
