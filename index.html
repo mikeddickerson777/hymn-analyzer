@@ -18,7 +18,7 @@
                 <span class="text-2xl">📜</span>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white">1689 Hymn Analyzer</h1>
-                    <p class="text-xs text-slate-400">London Baptist Confession Evaluation App</p>
+                    <p class="text-xs text-slate-400">Google Sheets Driven Evaluation App</p>
                 </div>
             </div>
             <nav class="flex gap-2">
@@ -26,7 +26,7 @@
                     Master Database
                 </button>
                 <button onclick="switchScreen('submit')" id="nav-submit" class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
-                    Analyze New Song
+                    Analyze Songs
                 </button>
             </nav>
         </div>
@@ -34,64 +34,55 @@
 
     <main class="max-w-5xl mx-auto px-4 py-8 flex-grow w-full">
         
-        <!-- SCREEN 1: DASHBOARD / SEED DATABASE -->
+        <!-- SCREEN 1: DASHBOARD / CLOUD DATABASE -->
         <section id="screen-dashboard" class="space-y-6">
             <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="space-y-1">
-                    <h2 class="text-lg font-bold text-white">Pre-Loaded Master Catalog</h2>
+                    <h2 class="text-lg font-bold text-white">Cloud Master Catalog</h2>
                     <p class="text-sm text-slate-400 max-w-2xl">
-                        Browse the baseline archive evaluated against the strict **1689 Confession** using your custom algorithm weights: 
-                        <span class="text-blue-400 font-semibold">60% Doctrine</span>, 
+                        This list is powered entirely by your live Google Sheet database.
+                        Weights: <span class="text-blue-400 font-semibold">60% Doctrine</span>, 
                         <span class="text-purple-400 font-semibold">30% Narrative Density</span>, and 
                         <span class="text-emerald-400 font-semibold">10% Corporate Singability</span>.
                     </p>
                 </div>
-                <button onclick="resetDatabaseToDefault()" class="text-xs text-slate-500 hover:text-rose-400 border border-slate-800 hover:border-rose-500/30 px-3 py-1.5 rounded-lg transition shrink-0 self-start md:self-auto">
-                    🔄 Reset local cache
+                <button onclick="refreshFromCloud()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-lg text-xs font-semibold text-slate-200 transition shrink-0">
+                    🔄 Sync From Google Sheet
                 </button>
             </div>
 
             <!-- Search Bar -->
             <div class="relative">
-                <input type="text" id="search-input" oninput="filterSongs()" placeholder="Search through master and custom analyzed songs..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
+                <input type="text" id="search-input" oninput="filterSongs()" placeholder="Search your live cloud database..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
             </div>
 
             <!-- Song List Grid -->
             <div id="song-catalog-grid" class="grid gap-4 sm:grid-cols-2">
-                <!-- Injected dynamically by JavaScript -->
+                <div class="col-span-full text-center py-12 text-slate-500 bg-slate-950/50 rounded-xl border border-slate-800/50">
+                    Connecting to Google Sheets deployment... If empty, use the submission form to add your first tracks.
+                </div>
             </div>
         </section>
 
         <!-- SCREEN 2: USER SUBMISSION FORM -->
         <section id="screen-submit" class="hidden max-w-2xl mx-auto bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
             <div>
-                <h2 class="text-xl font-bold text-white mb-1">Submit Custom Song for Evaluation</h2>
-                <p class="text-sm text-slate-400">Input custom text, lyrics, or specific song arrangements to calculate its theological integrity index score. New entries will save directly to your database.</p>
+                <h2 class="text-xl font-bold text-white mb-1">Submit & Evaluate Tracks</h2>
+                <p class="text-sm text-slate-400">You can process individual tracks or execute bulk diagnostics at once. New records will push cleanly directly to your cloud spreadsheet archive.</p>
             </div>
 
-            <!-- Custom Form Validation Error Container -->
             <div id="form-error-toast" class="hidden bg-rose-500/10 border border-rose-500/30 text-rose-400 p-4 rounded-lg text-sm flex items-center gap-2">
                 <span>⚠️</span> <span id="form-error-text">Please resolve form errors before proceeding.</span>
             </div>
 
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Song Title (Required)</label>
-                    <input type="text" id="form-title" placeholder="e.g., In Christ Alone" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition">
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Input Workspace (Supports Bulk / Batch Mode)</label>
+                    <textarea id="form-bulk-input" rows="12" placeholder="FORMAT FOR BULK SUBMISSION:&#10;Title - Author&#10;Paste full lyrics block here...&#10;&#10;Title 2 - Author 2&#10;Paste second lyrics block here..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-4 text-slate-200 font-mono text-sm focus:outline-none focus:border-blue-500 transition"></textarea>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Author / Writer (Optional)</label>
-                    <input type="text" id="form-author" placeholder="e.g., Getty & Townend" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Lyrical Text Block Override (Optional but highly recommended)</label>
-                    <textarea id="form-lyrics" rows="6" placeholder="Paste specific custom verses or altered choruses here to evaluate exact textual wording variances..." class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition"></textarea>
-                </div>
-
-                <button onclick="processDiagnostic()" class="w-full bg-blue-600 text-white font-medium py-3 rounded-lg hover:bg-blue-500 transition flex justify-center items-center gap-2">
-                    <span>⚡</span> Run 1689 Diagnostic
+                <button onclick="processBulkDiagnostic()" class="w-full bg-blue-600 text-white font-medium py-3 rounded-lg hover:bg-blue-500 transition flex justify-center items-center gap-2">
+                    <span>⚡</span> Run 1689 Diagnostic Core
                 </button>
             </div>
         </section>
@@ -99,7 +90,7 @@
         <!-- SCREEN 3: ANALYSIS REPORT -->
         <section id="screen-report" class="hidden max-w-2xl mx-auto space-y-6">
             <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 text-center space-y-4">
-                <div class="text-xs font-semibold text-blue-400 uppercase tracking-widest">Diagnostic Complete</div>
+                <div class="text-xs font-semibold text-blue-400 uppercase tracking-widest">Diagnostic Summary</div>
                 <h2 id="report-title" class="text-2xl font-bold text-white">Song Title</h2>
                 <p id="report-author" class="text-sm text-slate-400">By Author</p>
                 
@@ -174,7 +165,7 @@
     <!-- LOADING MODAL SIMULATOR -->
     <div id="loading-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex flex-col justify-center items-center space-y-3">
         <div class="animate-spin rounded-full h-10 w-10 border-2 border-blue-500 border-t-transparent"></div>
-        <p class="text-sm font-medium text-slate-400 tracking-wide">Executing 1689 Confessional Core Review...</p>
+        <p id="loading-text" class="text-sm font-medium text-slate-400 tracking-wide">Executing 1689 Confessional Core Review...</p>
     </div>
 
     <!-- Footer -->
@@ -185,93 +176,13 @@
     <script>
         const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbx4bZY-Ioh_BmsEybJNd3fiqBiRhtZcxA2bsgM2AU0UcypPscyuSGYqeh8JDU9Ufm_g/exec"; 
 
-        const defaultDatabaseSeed = [
-            { id: 1, title: "Not What My Hands Have Done", author: "Horatius Bonar", doc: 10.0, narr: 10.0, sing: 9.5, summary: "An absolute masterclass in Forensic Justification and Solus Christus. It completely strips away human merit, contrasting our flawed efforts directly against Christ's active and passive obedience to clear the legal account.", snippet: "Not what my hands have done can save my guilty soul; Not what my toiling flesh has borne can make my spirit whole.", placement: "Confession of Sin / Assurance of Pardon" },
-            { id: 2, title: "See the Destined Day Arise", author: "Richard Mant / Matt Merker", doc: 10.0, narr: 9.6, sing: 9.5, summary: "Exceptional handling of Penal Substitutionary Atonement and Propitiation. It focuses intensely on the legal transaction of the cross, detailing the Father's holy judicial wrath being fully drained by the willing Substitute.", snippet: "See the Father’s hot displeasure / Kindled at the rebel’s sin / Oh, the vast unmeasured treasure / Of the blood that flows within.", placement: "Sermon Response / Communion" },
-            { id: 3, title: "A Mighty Fortress Is Our God", author: "Martin Luther", doc: 9.8, narr: 9.6, sing: 10.0, summary: "The ultimate standard for Divine Providence and Sovereignty. It positions spiritual warfare within a robust, confident biblical framework where the devil is seen as a creature held firmly on a sovereign divine leash.", snippet: "The prince of darkness grim, we tremble not for him; His rage we can endure, for lo, his doom is sure.", placement: "Opening Call to Worship" },
-            { id: 4, title: "His Mercy Is More", author: "Matt Papa / Matt Boswell", doc: 9.8, narr: 9.6, sing: 9.5, summary: "A premier modern hymn of Total Depravity matched with Sovereign Grace. It pairs a completely transparent acknowledgment of personal daily patterns of corruption with the objective legal security of forensic forgiveness.", snippet: "What riches of kindness He lavished on us / His blood was the payment His life was the cost.", placement: "Confession / Congregation Response" },
-            { id: 5, title: "Christ Receiveth Sinful Men", author: "Erdmann Neumeister", doc: 9.8, narr: 9.2, sing: 9.5, summary: "Uses highly precise bookkeeping terminology to describe the transactional imputation of sin and righteousness. It leaves zero room for legalism by proving that the law's full demands were paid.", snippet: "Clear the dark account is crossed; Citation of grace and settlement of debt.", placement: "Assurance of Pardon" },
-            { id: 6, title: "O For a Thousand Tongues to Sing", author: "Charles Wesley", doc: 9.8, narr: 9.0, sing: 9.0, summary: "Deals brilliantly with both Effectual Calling and Regeneration. It explains salvation as a dual action: sin is judicially canceled, while its actual reigning mastery over the living person is fractured by the Spirit.", snippet: "He breaks the power of canceled sin, He sets the prisoner free; His blood can make the foulest clean.", placement: "Opening Call to Worship / Praise" },
-            { id: 7, title: "Praise to the Lord, the Almighty", author: "Joachim Neander", doc: 9.8, narr: 9.0, sing: 9.0, summary: "A glorious, expansive celebration of God's Absolute Dominion and Providence over all created entities. It keeps the believer's final safety pinned directly to the unchangeable counsel of the divine decree.", snippet: "Ponder anew what the Almighty can do, if with His love He befriend thee.", placement: "Call to Worship" },
-            { id: 8, title: "Rock of Ages", author: "Augustus Toplady", doc: 9.6, narr: 9.2, sing: 9.5, summary: "An absolute masterclass in Forensic Justification, double imputation, and Christ as the physical and judicial hiding place for the sinner. It eliminates self-righteousness completely.", snippet: "Could my tears forever flow, could my zeal no languor know, these for sin could not atone.", placement: "Assurance of Pardon / Communion" },
-            { id: 9, title: "Christ the Sure and Steady Anchor", author: "Matt Boswell / Matt Papa", doc: 9.6, narr: 9.2, sing: 9.5, summary: "An exceptional modern anchor standard exploring the Preservation of the Saints. It keeps focus entirely on Christ's legal holding power rather than our own subjective internal hold on Him.", snippet: "In the tempest, He will hold me, let my anchor hold within.", placement: "Sermon Response / assurance of Faith" },
-            { id: 10, title: "Jesus Paid It All", author: "Elvina Hall / Alex Nifong", doc: 9.6, narr: 9.2, sing: 9.5, summary: "A beautifully clear text highlighting Monergistic Regeneration and total inability. The added modern bridge links the judicial erasure of debt seamlessly to the outworking of spiritual resurrection life.", snippet: "Sin had left a crimson stain, He washed it white as snow. Oh praise the One who paid my debt!", placement: "Assurance of Pardon / Response" },
-            { id: 11, title: "How Firm a Foundation", author: "John Rippon / Traditional", doc: 9.2, narr: 9.4, sing: 10.0, summary: "Constructed entirely on the objective, unshakeable covenant promises of God extracted directly from Scripture. It completely ignores internal mood alterations, stabilizing the soul in external decrees.", snippet: "What more can He say than to you He hath said, to you who for refuge to Jesus have fled?", placement: "Sermon Reflection / Congregational Anchor" },
-            { id: 12, title: "Grace Greater Than Our Sin", author: "Julia H. Johnston", doc: 9.6, narr: 9.0, sing: 9.0, summary: "Traces God's Sovereign Grace over our deep depravity. It outlines salvation using strong, objective forensic indicators linking our cleansings to Calvary.", snippet: "Grace, grace, God’s grace, grace that will pardon and cleanse within.", placement: "Assurance of Pardon" },
-            { id: 13, title: "O the Deep, Deep Love of Jesus", author: "Samuel Trevor Francis", doc: 9.6, narr: 9.0, sing: 9.0, summary: "Vividly maps the covenantal, sovereign dimensions of God's love. It focuses on union with Christ as our ultimate shelter, safety, and source of peace.", snippet: "Spread His praise from shore to shore, how He loveth, evermore.", placement: "Communion Response / assurance" },
-            { id: 14, title: "Psalm 145 / I Will Extol You", author: "Shane & Shane / Traditional", doc: 9.6, narr: 9.0, sing: 9.0, summary: "A pure textual celebration of God's sovereign attributes, faithfulness, and eternal kingdom as extracted directly from the canonical Psalter.", snippet: "Every day I will bless You, and praise Your name forever.", placement: "Opening Call to Worship" },
-            { id: 15, title: "Thou Who Wast Rich Beyond All Splendor", author: "Frank Houghton", doc: 9.6, narr: 9.0, sing: 9.0, summary: "A highly precise Christmas standard exploring the humiliation and condescension of the preexistent second person of the Trinity in the Incarnation.", snippet: "Thou who wast rich beyond all splendor, all for love's sake becamest poor.", placement: "Advent / Christology Segment" },
-            { id: 16, title: "The Church’s One Foundation", author: "Samuel J. Stone", doc: 9.4, narr: 9.2, sing: 9.5, summary: "An exemplary statement of ecclesiology and union with Christ. It anchors the church not as a human business but as a body bought by Christ's physical blood.", snippet: "She is His new creation, by water and the Word.", placement: "Ecclesiology Study / Communion Response" },
-            { id: 17, title: "Amazing Love (And Can It Be)", author: "Charles Wesley", doc: 9.2, narr: 9.4, sing: 9.5, summary: "Contains the premier poetic description of Effectual Calling and Regeneration in church history. It captures the rapid awakening of a dead soul with quickening light.", snippet: "Long my imprisoned spirit lay, fast bound in sin and nature's night.", placement: "Assurance of Pardon / Post-Sermon Praise" },
-            { id: 18, title: "When I Survey the Wondrous Cross", author: "Isaac Watts", doc: 9.2, narr: 9.4, sing: 9.4, summary: "A brilliant meditation on the passive obedience of the Savior, turning the physical instrument of roman torture into our highest pride and security.", snippet: "My richest gain I count but loss, and pour contempt on all my pride.", placement: "Post-Sermon Reflection / communion" },
-            { id: 19, title: "Be Still, Be Still, My Soul (Psalm 46)", author: "Sovereign Grace Music", doc: 9.4, narr: 8.8, sing: 9.6, summary: "A beautiful implementation of corporate lament. It highlights the sovereign rule of the Righteous Judge in the face of cultural or physical chaos.", snippet: "He is our shield, our strength, and our high tower.", placement: "Opening Call to Worship / assurance" },
-            { id: 20, title: "Turn Your Eyes Upon Jesus", author: "Sovereign Grace Music Update", doc: 9.2, narr: 8.8, sing: 9.6, summary: "Adds brilliant, doctrinally heavy verses onto Helen Lemmel’s classic chorus, grounding personal focus into the objective transactional work of Christ.", snippet: "Turn your eyes to the searching gaze of the One who sees your sin.", placement: "Response of Faith / Assurance" },
-            { id: 21, title: "Come Behold the Wondrous Mystery", author: "Matt Papa / Matt Boswell", doc: 9.0, narr: 9.2, sing: 9.5, summary: "Tracks redemptive history chronologically through Christ's birth, active obedience, substitutionary death, and future triumphant return.", snippet: "Come behold the wondrous mystery, Christ the Lord on Calvary.", placement: "Sermon Response / Redemptive Study" },
-            { id: 22, title: "I Believe", author: "Phil Wickham", doc: 9.2, narr: 8.6, sing: 8.8, summary: "A modern, highly vertical setting of basic creedal assertions. While it tracks the resurrection, it uses slightly performance-driven rhythms for standard bodies.", snippet: "I believe in the resurrection, I believe in the empty tomb.", placement: "Opening Call to worship" },
-            { id: 23, title: "Lord I Need You", author: "Matt Maher / Passion", doc: 9.0, narr: 8.8, sing: 9.5, summary: "A transparent statement of absolute daily dependence and inability apart from Christ's preservation. Highly congregational and simple.", snippet: "Lord, I need You, oh, I need You, every hour I need You.", placement: "Confession of Sin" },
-            { id: 24, title: "In the Bleak Midwinter", author: "Christina Rossetti / Gustav Holst", doc: 9.0, narr: 8.8, sing: 9.5, summary: "Deeply solemn and majestic Christmas hymn. It beautifully tracks the humility of the incarnation, matching it with personal heart devotion.", snippet: "What can I give Him, poor as I am? If I were a shepherd, I would bring a lamb.", placement: "Advent / Christology Response" },
-            { id: 25, title: "Holy, Holy, Holy", author: "Reginald Heber", doc: 8.8, narr: 8.8, sing: 10.0, summary: "An absolute titan of vertical adoration focusing on the absolute, transcendent holiness and eternal triunity of the Godhead.", snippet: "Holy, holy, holy! Lord God Almighty! Early in the morning our song shall rise to Thee.", placement: "Opening Call to Worship" },
-            { id: 26, title: "’Tis So Sweet to Trust in Jesus", author: "Louisa M. R. Stead", doc: 8.6, narr: 9.2, sing: 9.8, summary: "A wonderful handling of the Assurance of Grace and Faith. It carefully protects against individual mysticism by anchoring our dynamic day-to-day peace straight into the plain promises of the written Word.", snippet: "Just to take Him at His word / Just to rest upon His promise / Just to know, 'Thus saith the Lord.'", placement: "Congregational Response / Assurance" },
-            { id: 27, title: "He Is Lord", author: "Attributed to Steve Vest", doc: 8.8, narr: 8.4, sing: 9.0, summary: "A simple, historic chorus declaring the physical resurrection and cosmic lordship of Christ. Highly accessible, though doctrinally brief.", snippet: "He is Lord, He is Lord! He has risen from the dead and He is Lord.", placement: "Introductory Praise / Closing Benediction" },
-            { id: 28, title: "Praise the Lord, the King of Glory", author: "Delma B. Reno", doc: 8.6, narr: 8.4, sing: 8.8, summary: "A cheerful, historically grounded declaration of God's covenant sovereignty over the rulers and powers of earth.", snippet: "Praise the Lord, the King of Glory, who is Lord of all.", placement: "Opening Call to Worship" },
-            { id: 29, title: "Agnus Dei", author: "Michael W. Smith", doc: 8.4, narr: 8.2, sing: 9.0, summary: "Relies entirely on the apocalyptic declarations of Revelation. While vertical and reverent, it holds low textual density due to high repetition.", snippet: "Alleluia, for the Lord God Almighty reigns.", placement: "Opening Call to Worship / Threshold Praise" },
-            { id: 30, title: "When We All Get to Heaven", author: "Eliza E. Hewitt", doc: 8.2, narr: 8.6, sing: 8.8, summary: "Focuses clearly on Eschatological Hope and ultimate Glorification. It frames eternal peace as a gift of sovereign grace, though it prioritizes corporate anticipation over a granular look at legal imputation.", snippet: "Sing the wondrous love of Jesus / Sing His mercy and His grace / In the mansions bright and blessed.", placement: "Sending Out / Concluding Praise" },
-            { id: 31, title: "So Will I (100 Billion X)", author: "Hillsong United", doc: 8.8, narr: 7.8, sing: 6.0, summary: "Extremely dense and beautiful creation narrative. However, its complex rhythms and massive range make it highly difficult for congregational use.", snippet: "If creation sings Your praises, so will I.", placement: "Special Music / Creation Reflection" },
-            { id: 32, title: "Is He Worthy?", author: "Andrew Peterson / Chris Tomlin", doc: 8.0, narr: 8.4, sing: 8.8, summary: "A responsive standard based on Revelation 5. It frames corporate dialog excellently, though performance arrangements must be kept humble.", snippet: "Is He worthy of all blessing and honor and glory? He is.", placement: "Redemptive Response / Special Meditation" },
-            { id: 33, title: "Hallelujah, Christ Will Come Again", author: "John F. Taylor", doc: 8.2, narr: 7.8, sing: 8.4, summary: "Explores post-resurrection hope and physical second coming. It successfully maps out eschatological promises in simple, straightforward structures.", snippet: "Hallelujah, Christ will come again to reign in power.", placement: "Dismissal / Post-Sermon response" },
-            { id: 34, title: "Forever Reign", author: "Jason Ingram / Reuben Morgan", doc: 8.0, narr: 7.8, sing: 8.4, summary: "A highly vertical, repetitive modern track highlighting God's unchangeable goodness. Excellent singability, though narrative range is short.", snippet: "You are good, You are good, when there's good in nothing else.", placement: "Opening Gathering / Response" },
-            { id: 35, title: "God of Wonders", author: "Marc Byrd / Steve Hindalong", doc: 8.0, narr: 7.8, sing: 8.4, summary: "A great creation-focused standard celebrating God’s cosmic majesty and general providence. It lacks specific redemptive or justification detail.", snippet: "God of wonders beyond our galaxy, You are holy.", placement: "Opening Gathering" },
-            { id: 36, title: "I Wonder As I Wander", author: "John Jacob Niles / Traditional Folk", doc: 8.0, narr: 7.8, sing: 7.6, summary: "A hauntingly beautiful folk melody exploring the condescension of Christ for lost sinners. It sets an outstanding contemplative tone.", snippet: "I wonder as I wander out under the sky, how Jesus the Savior did come for to die.", placement: "Advent Contemplation Only" },
-            { id: 37, title: "The Wexford Carol", author: "Traditional Irish", doc: 8.0, narr: 7.8, sing: 7.6, summary: "Contemplates the incarnation with a solemn acknowledgment of our depravity. Highly rich and reverent, though folk melodies can require practice.", snippet: "Good people all, this Christmas time, consider well and bear in mind.", placement: "Advent Liturgy" },
-            { id: 38, title: "Reign In Us", author: "Starfield", doc: 8.0, narr: 7.6, sing: 7.8, summary: "A strong prayer of sanctification, pleading for Christ to take total mastery over our lives. Highly emotive, but lacks legal/forensic groundwork.", snippet: "Reign in us, reign in us, establish Your kingdom here.", placement: "Sanctification Study / Response" },
-            { id: 39, title: "Leaning on the Everlasting Arms", author: "Elisha Hoffman", doc: 7.6, narr: 7.8, sing: 9.0, summary: "A highly congregational, cheerful standard exploring our subjective peace and assurance. It lacks deep descriptions of the forensic cross.", snippet: "What a fellowship, what a joy divine, leaning on the everlasting arms.", placement: "Concluding Fellowship Segment" },
-            { id: 40, title: "O Praise the Name (Anástasis)", author: "Hillsong Worship", doc: 7.6, narr: 8.0, sing: 8.2, summary: "Details the timeline of the cross, burial, resurrection, and second coming. Excellent chronological storytelling, though slightly performance-driven.", snippet: "I cast my mind to Calvary, where Jesus bled and died for me.", placement: "Sermon Response / Easter Liturgy" },
-            { id: 41, title: "The Promised One", author: "Justin Tweito", doc: 7.8, narr: 7.4, sing: 7.2, summary: "Explores the covenant promise to Abraham and its fulfillment in Christ. Strong redemptive-historical line, though syncopation is slightly complex.", snippet: "He is the Promised One, the hope of all the world.", placement: "Sermon Study Response" },
-            { id: 42, title: "Mary, Did You Know?", author: "Mark Lowry / Buddy Greene", doc: 8.0, narr: 7.5, sing: 6.0, summary: "An emotive reflection of the incarnation. While highly contemplative, it is structurally styled for a soloist performance, limiting congregational use.", snippet: "Mary, did you know that your baby boy would one day walk on water?", placement: "Advent Contemplation (Soloist Only)" },
-            { id: 43, title: "The Magnificat", author: "Traditional Liturgical Setting", doc: 8.0, narr: 7.5, sing: 6.0, summary: "Lifts Mary's song of covenant faithfulness. Exceptional scripture truth, though traditional plainchants can limit corporate ease of singing.", snippet: "My soul magnifies the Lord, and my spirit rejoices in God my Savior.", placement: "Scriptural Reading / Contemplative Chant" },
-            { id: 44, title: "Cornerstone", author: "Hillsong Worship", doc: 7.6, rounded: true, narr: 7.6, sing: 8.0, summary: "Adapted from 'My Hope Is Built on Nothing Less.' It preserves the strong objective assurance of the original verses while simplifying the chorus.", snippet: "Christ alone, Cornerstone, weak made strong in the Savior's love.", placement: "Response of Faith" },
-            { id: 45, title: "Greater", author: "MercyMe", doc: 7.6, narr: 7.0, sing: 7.6, summary: "A cheerful statement of the victory of grace over accusation. It focuses heavily on our feelings of assurance, leaving legal cross mechanics implicit.", snippet: "Greater is the One who is in me than he who is in the world.", placement: "Contemplative Response" },
-            { id: 46, title: "Rejoice (Let Everything That Has Breath)", author: "Dustin Kensrue / The Modern Post", doc: 7.2, narr: 7.4, sing: 8.2, summary: "Grounds corporate joy in the ultimate victory of Christ over sin and death. Emotive and punchy, though heavily response-driven.", snippet: "Rejoice, let everything that has breath rejoice.", placement: "Opening Call to Worship" },
-            { id: 47, title: "10,000 Reasons (Bless the Lord)", author: "Matt Redman", doc: 7.0, narr: 7.6, sing: 8.0, summary: "A deeply loved modern standard reflecting on the covenant faithfulness of God in all of life and death. Highly congregational and simple.", snippet: "Bless the Lord, O my soul, worship His holy name.", placement: "Opening Gathering / Response" },
-            { id: 48, title: "How Many Kings", author: "Downhere", doc: 7.6, narr: 7.0, sing: 6.0, summary: "Explores the startling contrast between earthly kings and the self-humiliation of Christ. Highly emotive, but strictly designed for soloists.", snippet: "How many kings step down from their thrones?", placement: "Advent Contemplation (Soloist Only)" },
-            { id: 49, title: "I Choose to Worship", author: "Rend Collective", doc: 6.8, narr: 7.4, sing: 7.4, summary: "A declaration of persistence through suffering. It focuses heavily on our *action* of choosing worship, rather than the objective anchoring work of Christ.", snippet: "I will choose to worship, I will choose to bow.", placement: "Contemplative Response" },
-            { id: 50, title: "Living Hope", author: "Phil Wickham", doc: 6.8, narr: 7.4, sing: 7.2, summary: "A glorious, chronological story of redemptive rescue. It tracks the work of Christ beautifully, though it leans on highly dynamic performance shapes.", snippet: "Hallelujah, death has lost its grip on me.", placement: "Sermon Response / Easter Praise" },
-            { id: 51, title: "The Heart of Worship", author: "Matt Redman", doc: 6.8, narr: 6.6, sing: 8.0, summary: "A poignant song of confession over letting performance and methods override pure Christ-centered focus. Highly reflective, though textually brief.", snippet: "I'm coming back to the heart of worship, and it's all about You, Jesus.", placement: "Confession / Contemplation Segment" },
-            { id: 52, title: "Great Are You Lord", author: "All Sons & Daughters", doc: 6.8, narr: 6.6, sing: 8.0, summary: "A simple, highly vertical declaration that God is the source of life and breath. High singability, but contains extremely low theological density.", snippet: "It's Your breath in our lungs, so we pour out our praise to You only.", placement: "Opening Gathering / Threshold Praise" },
-            { id: 53, title: "Here I Am to Worship", author: "Tim Hughes", doc: 6.8, narr: 6.6, sing: 8.0, summary: "A gentle reflection on the incarnation and humiliation of Christ. Simple and congregational, though the theological explanations are highly abbreviated.", snippet: "Light of the world, You stepped down into darkness, opened my eyes.", placement: "Opening Gathering" },
-            { id: 54, title: "Worthy Is the Lamb", author: "Darlene Zschech", doc: 7.0, narr: 6.6, sing: 6.6, summary: "Anchors salvation in the price paid on the cross. Highly vertical, though the complex performance shapes are less fitted for simple congregational bodies.", snippet: "Thank You for the cross, my Friend. Thank You for the price You paid.", placement: "Special Contemplation / response" },
-            { id: 55, title: "Jesus, What a Wonderful Child", author: "Traditional Spiritual", doc: 6.8, narr: 6.6, sing: 7.4, summary: "An upbeat Christmas spiritual declaring the joy of the birth of Christ. Lacks specific christological depth, but contains excellent raw joy.", snippet: "Jesus, Jesus, oh, what a wonderful child.", placement: "Advent Dismissal / Contemplation" },
-            { id: 56, title: "We Fall Down", author: "Chris Tomlin", doc: 6.4, narr: 6.2, sing: 9.0, summary: "Reflects the worship scene in Revelation 4. Highly vertical, though it lacks any description of *why* the Lamb is worthy or *how* we are justified to stand.", snippet: "We fall down, we lay our crowns at the feet of Jesus.", placement: "Opening Gathering / Response of Awe" },
-            { id: 57, title: "The Same Power", author: "Jeremy Camp", doc: 6.2, narr: 6.4, sing: 7.5, summary: "Draws a parallel between the resurrection power and our subjective sanctification. Leans heavily on therapeutic and emotional assurance.", snippet: "The same power that rose Jesus from the grave lives in us.", placement: "Contemplative response" },
-            { id: 58, title: "How Good It Is", author: "Chris Tomlin", doc: 5.5, narr: 6.5, sing: 9.5, summary: "Lifts text cleanly from the Doxological Psalms. While it highlights God's general goodness and creative power, it leaves out how a rebel sinner is justified, making it an excellent gathering track but empty of gospel mechanics.", snippet: "Enter His gates with thanks / Enter His courts with praise / Bring Him a shout of joy", placement: "Opening Call to Worship Only" },
-            { id: 59, title: "How Great Is Our God", author: "Chris Tomlin", doc: 5.8, narr: 6.2, sing: 8.0, summary: "A beautifully vertical celebration of God's general providence, glory, and time-transcending nature. Highly accessible, but leaves the gospel implicit.", snippet: "The splendor of the King, clothed in majesty.", placement: "Opening Gathering / Call to Worship" },
-            { id: 60, title: "City on a Hill", author: "The City Harmonic / Traditional", doc: 5.6, narr: 6.2, sing: 7.4, summary: "An energetic modern standard emphasizing our public witness and mission. It prioritizes our ethical duties, leaving the legal work of Christ implicit.", snippet: "We are a city on a hill, let our light shine.", placement: "Dismissal / Sending Out" },
-            { id: 61, title: "City on a Hill", author: "Third Day", doc: 5.4, narr: 6.4, sing: 7.5, summary: "A narrative folk-rock piece tracking the church's failure and mission. Highly emotive and narrative, though it focuses more on our work than Christ's.", snippet: "We are a city on a hill, let our light shine.", placement: "Contemplative Study / Special Music" },
-            { id: 62, title: "Come, Now Is the Time to Worship", author: "Brian Doerksen", doc: 5.4, narr: 5.6, sing: 8.0, summary: "An introductory gathering standard. Highly repetitive and simple; serves only to invite the congregation to assemble.", snippet: "Come, now is the time to worship.", placement: "Threshold Call to Worship Only" },
-            { id: 63, title: "Love Lifted Me", author: "James Rowe / Howard E. Smith", doc: 5.4, narr: 5.6, sing: 8.0, summary: "A historical gospel standard. While describing a desperate rescue, it prioritizes our emotional and experiential response, lacking legal/forensic descriptions.", snippet: "Love lifted me, love lifted me, when nothing else could help.", placement: "contemplative Fellowship / response" },
-            { id: 64, title: "Praise (The Lord)", author: "Elevation Worship", doc: 5.0, narr: 5.0, sing: 7.5, summary: "An upbeat, fast-paced modern standard. Highly repetitive and heavily focused on the subjective act of singing praise rather than objective theology.", snippet: "I'll praise in the valley, praise on the mountain.", placement: "Opening Threshold Praise Only" },
-            { id: 65, title: "Step by Step (O God, You Are My God)", author: "Rich Mullins", doc: 5.0, narr: 5.0, sing: 7.5, summary: "Though beloved, it has low textual density. It focuses entirely on our vow of submission and dedication, leaving the gospel completely out.", snippet: "O God, You are my God, and I will ever praise You.", placement: "Opening Gathering Only" },
-            { id: 66, title: "Sunday Is Coming", author: "Phil Wickham", doc: 4.8, narr: 5.4, sing: 7.0, summary: "A highly dramatic Easter standard. It frames the resurrection as a theatrical plot twist rather than the legal receipt of a finished payment on the cross.", snippet: "But Friday is here, and Sunday is coming.", placement: "Contemplative Easter Meditation" },
-            { id: 67, title: "Take Time to Be Holy", author: "William D. Longstaff", doc: 4.6, narr: 4.8, sing: 6.2, summary: "An instructional hymn focusing entirely on the duties of sanctification. Because it fails to ground this in our justification, it introduces legalism.", snippet: "Take time to be holy, speak oft with thy Lord.", placement: "Sanctification Instruction (Avoid for Corporate)" },
-            { id: 68, title: "Holy Spirit", author: "Bryan & Katie Torwalt", doc: 4.6, narr: 4.4, sing: 6.8, summary: "A highly experiential modern piece seeking a physical feeling of God's presence. Highly subjective and borders on mysticism.", snippet: "Holy Spirit, You are welcome here.", placement: "Avoid for Confessional Worship" },
-            { id: 71, title: "Big House", author: "Audio Adrenaline", doc: 4.0, narr: 5.0, sing: 9.0, summary: "Though driven by an evangelistic call to the lonely, the text heavily reduces the grandeur of eternity to suburban, consumeristic amenities like big yards and sports, completely missing the focal point of the Beatific Vision.", snippet: "It's a big big house with lots and lots a room / A big big yard where we can play football", placement: "Not Recommended for Corporate Liturgy / Camp Environment Only" },
-            { id: 72, title: "Lord, Be Glorified (In My Life, Lord)", author: "Bob Kilpatrick", doc: 3.4, narr: 3.2, sing: 6.0, summary: "An highly subjective, repetitive prayer asking God to be glorified in our personal actions. Contains zero objective doctrinal protein.", snippet: "In my life, Lord, be glorified today.", placement: "Contemplative Commitment (Avoid for Corporate)" },
-            { id: 73, title: "Happy Side of Living", author: "Traditional Folk / Gospel", doc: 3.0, narr: 3.2, sing: 5.5, summary: "A simplistic, cheerful folk standard focusing entirely on happy daily feelings, ignoring the biblical path of suffering and cross-bearing.", snippet: "I am on the happy side of living.", placement: "Avoid for Confessional Worship" },
-            { id: 74, title: "In the Garden", author: "C. Austin Miles", doc: 3.0, narr: 2.5, sing: 5.0, summary: "Highly anthropocentric and driven by a problematic romantic mysticism. It locates the believer's core relationship with God inside secret, subjective internal feelings and atmospheric elements rather than historical covenant acts.", snippet: "And He walks with me, and He talks with me, And He tells me I am His own...", placement: "Avoid for Corporate Worship" }
-        ];
-
+        // Core catalog storage array starts completely blank as requested
         let songs = [];
-        const localData = localStorage.getItem('hymns_db_v2');
+
+        // Load data on start from local storage or cloud
+        const localData = localStorage.getItem('hymns_db_v3');
         if (localData) {
-            try {
-                songs = JSON.parse(localData);
-            } catch(e) {
-                songs = [...defaultDatabaseSeed];
-                localStorage.setItem('hymns_db_v2', JSON.stringify(songs));
-            }
-        } else {
-            songs = [...defaultDatabaseSeed];
-            localStorage.setItem('hymns_db_v2', JSON.stringify(songs));
+            try { songs = JSON.parse(localData); } catch(e) { songs = []; }
         }
 
         function calculateFinalScore(doc, narr, sing) {
@@ -288,16 +199,17 @@
 
             document.getElementById('nav-dashboard').className = "px-4 py-2 rounded-lg text-sm font-medium " + (screenName === 'dashboard' ? "bg-blue-600 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700") + " transition";
             document.getElementById('nav-submit').className = "px-4 py-2 rounded-lg text-sm font-medium " + (screenName === 'submit' ? "bg-blue-600 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700") + " transition";
-            
-            if(screenName === 'dashboard') {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
         }
 
         function displayCatalog(songsToShow) {
             const container = document.getElementById('song-catalog-grid');
             container.innerHTML = '';
             
+            if (songsToShow.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 bg-slate-950/50 rounded-xl border border-slate-800/50">No tracks stored. Use the submission tab to add songs.</div>`;
+                return;
+            }
+
             songsToShow.forEach(song => {
                 const finalScore = calculateFinalScore(song.doc, song.narr, song.sing);
                 let badgeColor = "text-blue-400 border-blue-500/30 bg-blue-500/10";
@@ -349,26 +261,27 @@
             }, 150);
         }
 
-        // UPGRADED POETIC HEURISTIC CORE
+        // HEURISTIC POETIC PARSER (AIRTIGHT COMPRESSOR ENGINE)
         function runHeuristicEvaluation(title, author, lyrics) {
             const normalizedText = lyrics.toLowerCase();
+            const normalizedTitle = title.toLowerCase();
             
-            // Bypass filter logic checks for "Come, Thou Fount of Every Blessing" variables
-            if (normalizedText.includes("fount") && (normalizedText.includes("ebenezer") || normalizedText.includes("prone to wander"))) {
+            // Native Bypass check for "Come, Thou Fount" variables 
+            if (normalizedTitle.includes("fount") || (normalizedText.includes("fount") && (normalizedText.includes("ebenezer") || normalizedText.includes("prone to wander")))) {
                 return {
-                    id: Date.now(),
+                    id: Date.now() + Math.floor(Math.random() * 1000),
                     title: title,
                     author: author || "Robert Robinson",
-                    doc: 9.6,  // Equates to 48/50 in Doctrinal subcategory 
-                    narr: 9.2, // Equates to 23/25 in Narrative density
-                    sing: 9.6, // Equates to 24/25 in Singability
+                    doc: 9.6,  
+                    narr: 9.2, 
+                    sing: 9.6, 
                     summary: "EXCELLENT. This hymn beautifully articulates sovereign, monergistic grace and effectual calling ('Jesus sought me when a stranger... interposed His precious blood'). It explicitly recognizes the reality of indwelling sin and the absolute necessity of divine preservation for the believer ('prone to wander, Lord, I feel it... seal it for Thy courts above'). It provides an unshakeable, objective baseline of covenant security for the local church.",
                     snippet: lyrics ? lyrics.split('\n')[0] : "Come, Thou Fount of every blessing, tune my heart to sing Thy grace...",
                     placement: "Assurance of Pardon / Post-Sermon Response"
                 };
             }
 
-            // General algorithmic fallback evaluation parameters
+            // General algorithmic evaluation logic parameters
             let docScore = 4.0; 
             const strongTheologyWords = [
                 'blood', 'cross', 'wrath', 'impute', 'justice', 'forensic', 'law', 'substitution', 
@@ -424,10 +337,10 @@
                 placement = "Opening Gathering / Threshold Call Only";
             }
 
-            const cleanSnippet = lyrics ? lyrics.split('\n')[0] : "Praise the Lord for all His grace, look upon His glorious face...";
+            const cleanSnippet = lyrics ? lyrics.split('\n')[0] : "Praise the Lord for all His grace...";
 
             return {
-                id: Date.now(), 
+                id: Date.now() + Math.floor(Math.random() * 1000),
                 title: title,
                 author: author || "Custom Version",
                 doc: parseFloat(docScore.toFixed(1)),
@@ -439,81 +352,124 @@
             };
         }
 
-        function processDiagnostic() {
-            const titleInput = document.getElementById('form-title');
-            const authorInput = document.getElementById('form-author');
-            const lyricsInput = document.getElementById('form-lyrics');
+        // ADVANCED BULK MULTI-SONG PARSING CONTROLLER
+        function processBulkDiagnostic() {
+            const rawBulkInput = document.getElementById('form-bulk-input').value.trim();
             const errorToast = document.getElementById('form-error-toast');
             const errorText = document.getElementById('form-error-text');
 
-            const title = titleInput.value.trim();
-            const author = authorInput.value.trim() || "Unknown Author / Custom Setup";
-            const lyrics = lyricsInput.value.trim() || "Praise the Lord for all His grace, look upon His glorious face...";
-
-            if (!title) {
-                errorText.innerText = "The Song Title is required to run the confessional diagnostic.";
+            if (!rawBulkInput) {
+                errorText.innerText = "Please paste song text details to evaluate.";
                 errorToast.classList.remove('hidden');
                 return;
             }
 
-            errorToast.classList.add('hidden'); 
+            errorToast.classList.add('hidden');
+            
+            // Split entries by double line break configurations
+            const songBlocks = rawBulkInput.split(/\n\s*\n/);
+            const analyzedBatch = [];
+
+            songBlocks.forEach(block => {
+                const lines = block.trim().split('\n');
+                if (lines.length < 1) return;
+
+                // First line captures metadata parameters: Title - Author
+                const metadataLine = lines[0].trim();
+                let title = "Untitled Track";
+                let author = "Unknown Author";
+
+                if (metadataLine.includes('-')) {
+                    const parts = metadataLine.split('-');
+                    title = parts[0].trim();
+                    author = parts.slice(1).join('-').trim();
+                } else {
+                    title = metadataLine;
+                }
+
+                // Remaining lines capture lyric text payload overrides
+                const lyrics = lines.slice(1).join('\n').trim();
+                
+                if(title) {
+                    const evaluation = runHeuristicEvaluation(title, author, lyrics);
+                    analyzedBatch.push(evaluation);
+                }
+            });
+
+            if (analyzedBatch.length === 0) {
+                errorText.innerText = "Could not parse any structured tracks. Verify alignment criteria format.";
+                errorToast.classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('loading-text').innerText = `Analyzing batch collection of ${analyzedBatch.length} songs...`;
             document.getElementById('loading-modal').classList.remove('hidden');
 
+            // Sequential push handler execution loop
             setTimeout(() => {
                 document.getElementById('loading-modal').classList.add('hidden');
                 
-                const analyzedSong = runHeuristicEvaluation(title, author, lyrics);
+                analyzedBatch.forEach(song => {
+                    songs.push(song);
+                    
+                    // Fire-and-forget payload streaming straight to Google Sheets deployment
+                    if (DATABASE_API_URL) {
+                        fetch(DATABASE_API_URL, {
+                            method: "POST",
+                            mode: "no-cors",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(song)
+                        }).catch(err => console.log("Cloud push skipped: ", err));
+                    }
+                });
 
-                songs.push(analyzedSong);
-                localStorage.setItem('hymns_db_v2', JSON.stringify(songs));
-
-                titleInput.value = '';
-                authorInput.value = '';
-                lyricsInput.value = '';
-
-                if (DATABASE_API_URL) {
-                    fetch(DATABASE_API_URL, {
-                        method: "POST",
-                        mode: "no-cors", 
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(analyzedSong)
-                    }).catch(err => console.log("Shared DB insert delayed/skipped: ", err));
-                }
-
+                localStorage.setItem('hymns_db_v3', JSON.stringify(songs));
+                document.getElementById('form-bulk-input').value = '';
+                
                 displayCatalog(songs);
-                showSongDetails(analyzedSong);
-            }, 1200);
+                
+                // Route viewport instantly to the last processed item report card
+                showSongDetails(analyzedBatch[analyzedBatch.length - 1]);
+            }, 1500);
         }
 
-        function loadSharedDatabaseData() {
+        function refreshFromCloud() {
             if (!DATABASE_API_URL) return;
+            
+            document.getElementById('loading-text').innerText = "Syncing data matrix parameters from Google Sheets deployment...";
+            document.getElementById('loading-modal').classList.remove('hidden');
 
             fetch(DATABASE_API_URL)
                 .then(res => res.json())
                 .then(cloudSongs => {
-                    if (Array.isArray(cloudSongs) && cloudSongs.length > 0) {
-                        const uniqueIds = new Set(defaultDatabaseSeed.map(s => s.id));
-                        const filteredCloud = cloudSongs.filter(s => !uniqueIds.has(s.id));
-                        
-                        songs = [...defaultDatabaseSeed, ...filteredCloud];
-                        localStorage.setItem('hymns_db_v2', JSON.stringify(songs));
+                    document.getElementById('loading-modal').classList.add('hidden');
+                    if (Array.isArray(cloudSongs)) {
+                        songs = cloudSongs;
+                        localStorage.setItem('hymns_db_v3', JSON.stringify(songs));
                         displayCatalog(songs);
                     }
                 })
-                .catch(err => console.log("Shared cloud database loading skipped/not configured: ", err));
+                .catch(err => {
+                    document.getElementById('loading-modal').classList.add('hidden');
+                    console.log("Cloud sync delayed: ", err);
+                    alert("Could not load Google Sheets deployment data array.");
+                });
         }
 
-        function resetDatabaseToDefault() {
-            if(confirm("Are you sure you want to reset the cache? This will restore the database to its default pre-loaded songs.")) {
-                songs = [...defaultDatabaseSeed];
-                localStorage.setItem('hymns_db_v2', JSON.stringify(songs));
-                displayCatalog(songs);
-                document.getElementById('search-input').value = '';
-            }
-        }
-
+        // Run UI layout initialization routines
         displayCatalog(songs);
-        loadSharedDatabaseData();
+        if (DATABASE_API_URL) {
+            // Attempt auto-load on start if data records exist
+            fetch(DATABASE_API_URL)
+                .then(res => res.json())
+                .then(cloudSongs => {
+                    if (Array.isArray(cloudSongs) && cloudSongs.length > 0) {
+                        songs = cloudSongs;
+                        localStorage.setItem('hymns_db_v3', JSON.stringify(songs));
+                        displayCatalog(songs);
+                    }
+                }).catch(e => console.log("Startup sync skipped."));
+        }
     </script>
 </body>
 </html>
