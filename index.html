@@ -98,8 +98,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Lyrical Text Block (Optional)</label>
-                    <textarea id="form-lyrics" rows="6" placeholder="Paste specific custom verses here... Leave blank to let Gemini evaluate the standard historical text automatically." class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition"></textarea>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Lyrical Text Block (Recommended)</label>
+                    <textarea id="form-lyrics" rows="6" placeholder="Paste specific custom verses or altered choruses here to evaluate exact textual wording variances..." class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition"></textarea>
                 </div>
 
                 <button onclick="processSingleDiagnostic()" class="w-full bg-blue-600 text-white font-medium py-3 rounded-lg hover:bg-blue-500 transition flex justify-center items-center gap-2">
@@ -207,8 +207,8 @@
     </footer>
 
     <script>
-        // LIVE INSTALLED GOOGLE SHEETS API ENDPOINT RELAY URL
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyk3iw5Hu8wDNh3pITEJb74awW1lraah33OCmYSEsu2OzY6lAai2nb6FXFVnM7nuJbc/exec"; 
+        // PLACE YOUR WEB APP RELAY URL HERE[cite: 1]
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbxJs5kmuXri3CDuH9ZYxYRoEL15IagB72gaUQTwsU3jn7okac4raMtXG6h4k3IR58w/exec"; 
 
         let songs = [];
 
@@ -217,7 +217,7 @@
             try { songs = JSON.parse(localData); } catch(e) { songs = []; }
         }
 
-        // 70% / 20% / 10% WEIGHT ADJUSTMENT COEFFICIENTS
+        // ADJUSTED WEIGHT COEFFICIENTS (70% / 20% / 10%)[cite: 1]
         function calculateFinalScore(doc, narr, sing) {
             return ((doc * 0.7) + (narr * 0.2) + (sing * 0.1)).toFixed(1);
         }
@@ -317,18 +317,12 @@
 
             const title = titleInput.value.trim();
             const author = authorInput.value.trim() || "Unknown Author";
-            let lyrics = lyricsInput.value.trim();
+            const lyrics = lyricsInput.value.trim();
 
-            // Only Title is strictly mandatory now
-            if (!title) {
-                errorText.innerText = "The Song Title is required to run the single diagnostic.";
+            if (!title || !lyrics) {
+                errorText.innerText = "Title and Lyrics are both required to run Gemini evaluations.";
                 errorToast.classList.remove('hidden');
                 return;
-            }
-
-            // Smart fallback instruction string passed to Gemini if lyric field is blank
-            if (!lyrics) {
-                lyrics = `[System Flag: No custom lyrics provided. Please evaluate the standard, historically recognized text of the hymn "${title}" by ${author}.]`;
             }
 
             errorToast.classList.add('hidden');
@@ -421,7 +415,7 @@
         }
 
         function refreshFromCloud() {
-            if (!DATABASE_API_URL) return;
+            if (!DATABASE_API_URL || DATABASE_API_URL.includes("PASTE")) return;
             
             document.getElementById('loading-text').innerText = "Downloading updated analysis records from cloud...";
             document.getElementById('loading-modal').classList.remove('hidden');
@@ -443,7 +437,7 @@
                 });
         }
 
-        if (DATABASE_API_URL) {
+        if (DATABASE_API_URL && !DATABASE_API_URL.includes("PASTE")) {
             refreshFromCloud();
         } else {
             displayCatalog(songs);
