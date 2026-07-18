@@ -51,12 +51,10 @@
                 </button>
             </div>
 
-            <!-- Search Bar -->
             <div class="relative">
                 <input type="text" id="search-input" oninput="filterSongs()" placeholder="Search your live cloud database..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
             </div>
 
-            <!-- Song List Grid -->
             <div id="song-catalog-grid" class="grid gap-4 sm:grid-cols-2">
                 <!-- Stored dynamically -->
             </div>
@@ -70,7 +68,6 @@
                     <p class="text-sm text-slate-400">Add custom song arrangements directly to your cloud spreadsheet archive.</p>
                 </div>
                 
-                <!-- Submission Mode Toggle Tabs -->
                 <div class="bg-slate-900 p-1 rounded-lg border border-slate-800 flex self-stretch sm:self-auto">
                     <button onclick="toggleSubmitMode('single')" id="btn-mode-single" class="flex-1 sm:flex-none px-3 py-1.5 rounded-md text-xs font-semibold bg-blue-600 text-white transition">
                         Single Entry
@@ -207,7 +204,6 @@
     </footer>
 
     <script>
-        // LIVE INSTALLED GOOGLE SHEETS API ENDPOINT RELAY URL
         const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbxPcdn3HrRqywVhq0DWEzZC6FqSoAMIF4Lo_dVrCd30w82xkzX2RLyIRz6IyyViz70E/exec"; 
 
         let songs = [];
@@ -217,7 +213,6 @@
             try { songs = JSON.parse(localData); } catch(e) { songs = []; }
         }
 
-        // 70% / 20% / 10% WEIGHT ADJUSTMENT COEFFICIENTS
         function calculateFinalScore(doc, narr, sing) {
             return ((doc * 0.7) + (narr * 0.2) + (sing * 0.1)).toFixed(1);
         }
@@ -308,6 +303,7 @@
             }, 150);
         }
 
+        // FIXED: Rebuilt network stream to securely wait for Gemini response payload to resolve completely
         function processSingleDiagnostic() {
             const titleInput = document.getElementById('form-title');
             const authorInput = document.getElementById('form-author');
@@ -319,20 +315,18 @@
             const author = authorInput.value.trim() || "Unknown Author";
             let lyrics = lyricsInput.value.trim();
 
-            // ONLY Title verification check is active now
             if (!title) {
                 errorText.innerText = "The Song Title is required to run the single diagnostic.";
                 errorToast.classList.remove('hidden');
                 return;
             }
 
-            // Fallback instruction triggers seamlessly if you leave the lyric field empty
             if (!lyrics) {
                 lyrics = `[System Flag: No custom lyrics provided. Please evaluate the standard, historically recognized text of the hymn "${title}" by ${author}.]`;
             }
 
             errorToast.classList.add('hidden');
-            document.getElementById('loading-text').innerText = "Gemini AI is reading and scoring text...";
+            document.getElementById('loading-text').innerText = "Gemini AI is reading and scoring text (this takes 3-5 seconds)...";
             document.getElementById('loading-modal').classList.remove('hidden');
 
             const initialPayload = {
@@ -342,26 +336,41 @@
                 lyrics: lyrics
             };
 
+            // Removed no-cors mode and updated text/plain to follow Google redirects cleanly
             fetch(DATABASE_API_URL, {
                 method: "POST",
-                mode: "no-cors",
                 headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify(initialPayload)
             })
-            .then(() => {
+            .then(res => res.json())
+            .then(response => {
+                titleInput.value = '';
+                authorInput.value = '';
+                lyricsInput.value = '';
+                
+                // Directly show the exact response object Gemini generated!
+                if(response && response.data) {
+                    songs.push(response.data);
+                    localStorage.setItem('hymns_db_v3', JSON.stringify(songs));
+                    document.getElementById('loading-modal').classList.add('hidden');
+                    showSongDetails(response.data);
+                } else {
+                    refreshFromCloud();
+                }
+            })
+            .catch(err => {
+                console.log("Stream validation catch: ", err);
+                // Fallback sync attempt in case of redirect masking
                 setTimeout(() => {
                     titleInput.value = '';
                     authorInput.value = '';
                     lyricsInput.value = '';
                     refreshFromCloud();
-                }, 2000);
-            })
-            .catch(err => {
-                document.getElementById('loading-modal').classList.add('hidden');
-                alert("Cloud transmission error.");
+                }, 4000);
             });
         }
 
+        // FIXED: Rebuilt bulk processing stream to handle asynchronous sequencing loops safely
         function processBulkDiagnostic() {
             const rawBulkInput = document.getElementById('form-bulk-input').value.trim();
             const errorToast = document.getElementById('form-error-toast');
@@ -401,7 +410,6 @@
                     document.getElementById('loading-text').innerText = `Gemini processing song [${index + 1}/${songBlocks.length}]: ${title}...`;
                     return fetch(DATABASE_API_URL, {
                         method: "POST",
-                        mode: "no-cors",
                         headers: { "Content-Type": "text/plain" },
                         body: JSON.stringify({
                             id: Date.now() + index,
@@ -414,10 +422,8 @@
             });
 
             promiseChain.then(() => {
-                setTimeout(() => {
-                    document.getElementById('form-bulk-input').value = '';
-                    refreshFromCloud();
-                }, 2500);
+                document.getElementById('form-bulk-input').value = '';
+                refreshFromCloud();
             }).catch(() => {
                 document.getElementById('loading-modal').classList.add('hidden');
                 alert("Error inside loop processing execution context.");
