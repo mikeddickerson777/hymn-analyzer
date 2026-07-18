@@ -204,7 +204,7 @@
     </footer>
 
     <script>
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbxUyKpVaYwXECE2YqDkI0Iqt543fEPOy7zIfddwOXy9zW_p138R3PATYbzqUVX8e6gG/exec"; 
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbxPcdn3HrRqywVhq0DWEzZC6FqSoAMIF4Lo_dVrCd30w82xkzX2RLyIRz6IyyViz70E/exec"; 
 
         let songs = [];
 
@@ -213,6 +213,7 @@
             try { songs = JSON.parse(localData); } catch(e) { songs = []; }
         }
 
+        // 70% / 20% / 10% WEIGHT ADJUSTMENT COEFFICIENTS
         function calculateFinalScore(doc, narr, sing) {
             return ((doc * 0.7) + (narr * 0.2) + (sing * 0.1)).toFixed(1);
         }
@@ -303,7 +304,7 @@
             }, 150);
         }
 
-        // FIXED: Rebuilt network stream to securely wait for Gemini response payload to resolve completely
+        // INTEGRATED REDIRECT BYPASS: Packets stream natively through an Image ping to clear pipeline jumps
         function processSingleDiagnostic() {
             const titleInput = document.getElementById('form-title');
             const authorInput = document.getElementById('form-author');
@@ -336,41 +337,21 @@
                 lyrics: lyrics
             };
 
-            // Removed no-cors mode and updated text/plain to follow Google redirects cleanly
-            fetch(DATABASE_API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify(initialPayload)
-            })
-            .then(res => res.json())
-            .then(response => {
+            const targetUrl = DATABASE_API_URL + "?callback=jsonp&action=insert&data=" + encodeURIComponent(JSON.stringify(initialPayload));
+            
+            const ping = new Image();
+            
+            setTimeout(() => {
                 titleInput.value = '';
                 authorInput.value = '';
                 lyricsInput.value = '';
-                
-                // Directly show the exact response object Gemini generated!
-                if(response && response.data) {
-                    songs.push(response.data);
-                    localStorage.setItem('hymns_db_v3', JSON.stringify(songs));
-                    document.getElementById('loading-modal').classList.add('hidden');
-                    showSongDetails(response.data);
-                } else {
-                    refreshFromCloud();
-                }
-            })
-            .catch(err => {
-                console.log("Stream validation catch: ", err);
-                // Fallback sync attempt in case of redirect masking
-                setTimeout(() => {
-                    titleInput.value = '';
-                    authorInput.value = '';
-                    lyricsInput.value = '';
-                    refreshFromCloud();
-                }, 4000);
-            });
+                document.getElementById('loading-modal').classList.add('hidden');
+                refreshFromCloud();
+            }, 4500);
+            
+            ping.src = targetUrl;
         }
 
-        // FIXED: Rebuilt bulk processing stream to handle asynchronous sequencing loops safely
         function processBulkDiagnostic() {
             const rawBulkInput = document.getElementById('form-bulk-input').value.trim();
             const errorToast = document.getElementById('form-error-toast');
@@ -408,16 +389,19 @@
 
                 promiseChain = promiseChain.then(() => {
                     document.getElementById('loading-text').innerText = `Gemini processing song [${index + 1}/${songBlocks.length}]: ${title}...`;
-                    return fetch(DATABASE_API_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "text/plain" },
-                        body: JSON.stringify({
-                            id: Date.now() + index,
-                            title: title,
-                            author: author,
-                            lyrics: lyrics
-                        })
-                    });
+                    
+                    const payload = {
+                        id: Date.now() + index,
+                        title: title,
+                        author: author,
+                        lyrics: lyrics
+                    };
+                    
+                    const targetUrl = DATABASE_API_URL + "?callback=jsonp&action=insert&data=" + encodeURIComponent(JSON.stringify(payload));
+                    const ping = new Image();
+                    ping.src = targetUrl;
+
+                    return new Promise(resolve => setTimeout(resolve, 5000));
                 });
             });
 
